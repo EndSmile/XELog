@@ -7,3 +7,8 @@
 默认会将需要打印的日志分别在控制台和`json`中各打印一份，在控制台中的打印依赖于[xlog](https://github.com/elvishew/xLog)实现，所以[xlog](https://github.com/elvishew/xLog)的实现全部可以正常使用。
 
 通过继承[XELogConfig](https://github.com/EndSmile/XELog/blob/master/xelog/src/main/java/com/ldy/xelog/config/XELogConfig.java)并覆写其配置方法，新建对象，通过调用`v(String msg)`等即可完成打印。
+
+
+### todoList
+
+#### 树状的tag
