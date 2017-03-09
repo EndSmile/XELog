@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <declare-styleable name="xelog_read_LogDetailItem">
+        <attr name="android:text" />
+        <attr name="android:title" />
+    </declare-styleable>
+
+    <declare-styleable name="xelog_read_DateItem">
+        <attr name="date" format="integer" />
+        <attr name="dateUnit" format="string" />
+    </declare-styleable>
+</resources>

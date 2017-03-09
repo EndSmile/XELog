@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="xelog_read_colorPrimary">#0184ff</color>
+    <color name="xelog_read_colorPrimaryDark">#0184ff</color>
+    <color name="xelog_read_colorAccent">#30b2e2</color>
+    <color name="xelog_read_scrim">#66000000</color>
+    <color name="xelog_read_base_white_100">#ffffff</color>
+    <color name="xelog_read_base_black_100">#000000</color>
+</resources>

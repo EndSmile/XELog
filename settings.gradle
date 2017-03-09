@@ -1,1 +1,1 @@
-include ':app', ':xelog', ':xelog-read'
+include ':sample', ':xelog', ':xelog-read'

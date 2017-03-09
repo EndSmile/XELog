@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/activity_log_detail"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    tools:context="com.ldy.xelog_read.activity.LogDetailActivity">
+
+    <include layout="@layout/xelog_read_toolbar" />
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="vertical">
+
+            <com.ldy.xelog_read.widget.LogDetailItem
+                android:id="@+id/logDetailItem_time"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:title="time" />
+
+            <com.ldy.xelog_read.widget.LogDetailItem
+                android:id="@+id/logDetailItem_author"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:title="author" />
+
+            <com.ldy.xelog_read.widget.LogDetailItem
+                android:id="@+id/logDetailItem_tag"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:title="tag" />
+
+            <com.ldy.xelog_read.widget.LogDetailItem
+                android:id="@+id/logDetailItem_level"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:title="level" />
+
+            <com.ldy.xelog_read.widget.LogDetailItem
+                android:id="@+id/logDetailItem_thread"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:title="thread" />
+
+            <com.ldy.xelog_read.widget.LogDetailItem
+                android:id="@+id/logDetailItem_remarks"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:title="remarks" />
+
+            <com.ldy.xelog_read.widget.LogDetailItem
+                android:id="@+id/logDetailItem_summary"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:title="summary" />
+
+            <com.ldy.xelog_read.widget.LogDetailItem
+                android:id="@+id/logDetailItem_content"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:title="content" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="#ffffff"
+                android:orientation="vertical"
+                android:padding="12dp">
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="stackTrace" />
+
+                <TextView
+                    android:id="@+id/tv_stackTrace"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:text="1111"
+                    android:textColor="#000000"
+                    android:textSize="9sp" />
+            </LinearLayout>
+
+
+        </LinearLayout>
+    </ScrollView>
+</LinearLayout>
