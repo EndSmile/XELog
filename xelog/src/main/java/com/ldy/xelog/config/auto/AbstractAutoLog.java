@@ -11,14 +11,10 @@ import java.util.List;
  * Created by ldy on 2017/3/8.
  */
 
-public class AbstractAutoLog extends XELogConfig {
-    private String author = "";
-    public AbstractAutoLog(Context context) {
-        super(context);
-    }
+public abstract class AbstractAutoLog extends XELogConfig implements IAutoLog{
+    private String author;
 
-    public AbstractAutoLog(Context context, String author) {
-        super(context);
+    public AbstractAutoLog(String author) {
         this.author = author;
     }
 
@@ -38,7 +34,7 @@ public class AbstractAutoLog extends XELogConfig {
     }
 
     @Override
-    public List<String> getTag() {
+    public List<String> getBaseTag() {
         ArrayList<String> tags = new ArrayList<>();
         tags.add("auto");
         return tags;

@@ -2,13 +2,8 @@ package com.ldy.xelog.config.auto;
 
 import android.app.Activity;
 import android.app.Application;
-import android.content.Context;
 import android.os.Bundle;
 
-import com.elvishew.xlog.LogConfiguration;
-import com.ldy.xelog.config.XELogConfig;
-
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -16,13 +11,29 @@ import java.util.List;
  */
 
 public class ActivityLog extends AbstractAutoLog {
-    private static ActivityLog activityLog;
+    protected static ActivityLog instance;
+    private boolean active;
 
-    private ActivityLog(Context context, String author) {
-        super(context, author);
+    protected ActivityLog(String author) {
+        super(author);
     }
 
-    private void initInner() {
+    public static ActivityLog getInstance(String author) {
+        if (instance == null) {
+            synchronized (ActivityLog.class) {
+                if (instance == null) {
+                    instance = new ActivityLog(author);
+                }
+            }
+        }
+        return instance;
+    }
+
+    public void active() {
+        if (active) {
+            return;
+        }
+        this.active = true;
         ((Application) context.getApplicationContext()).registerActivityLifecycleCallbacks(new Application.ActivityLifecycleCallbacks() {
             @Override
             public void onActivityCreated(Activity activity, Bundle savedInstanceState) {
@@ -78,23 +89,11 @@ public class ActivityLog extends AbstractAutoLog {
     }
 
     @Override
-    public List<String> getTag() {
-        List<String> tags = super.getTag();
+    public List<String> getBaseTag() {
+        List<String> tags = super.getBaseTag();
         tags.add("activity");
         tags.add("lifeCircle");
         return tags;
     }
 
-    public static void init(Context context, String author) {
-        if (activityLog == null) {
-            activityLog = new ActivityLog(context.getApplicationContext(), author);
-            activityLog.initInner();
-        } else {
-            throw new RuntimeException("always init");
-        }
-    }
-
-    public static void init(Context context) {
-        init(context, "");
-    }
 }

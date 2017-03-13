@@ -6,20 +6,28 @@ import com.google.gson.Gson;
 import com.ldy.xelog.config.XELogConfig;
 
 import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Created by ldy on 2017/3/3.
  */
-
 public class JsonFileFlattener implements Flattener {
 
+    private static Gson gson = new Gson();
+    private final XELogConfig xeLogConfig;
+    private final StackTraceElement[] stackTrace;
+    private final String thread;
+    private final List<String> tag;
 
-    private final Gson gson;
-    private XELogConfig xeLogConfig;
-
-    public JsonFileFlattener(XELogConfig xeLogConfig) {
+    public JsonFileFlattener(XELogConfig xeLogConfig, StackTraceElement[] stackTrace, String thread, List<String> tag) {
         this.xeLogConfig = xeLogConfig;
-        gson = new Gson();
+        this.stackTrace = stackTrace;
+        this.thread = thread;
+        if (tag==null){
+            this.tag = XELogConfig.DEFAULT_TAG_LIST;
+        }else {
+            this.tag = tag;
+        }
     }
 
     /**
@@ -32,25 +40,27 @@ public class JsonFileFlattener implements Flattener {
      */
     @Override
     public CharSequence flatten(int logLevel, String tag, String message) {
+
         JsonFileBean jsonFileBean = new JsonFileBean();
         jsonFileBean.setLevel(LogLevel.getLevelName(logLevel));
-        jsonFileBean.setTag(xeLogConfig.getTag());
+        jsonFileBean.setTag(this.tag);
+        jsonFileBean.setTag(xeLogConfig.getBaseTag());
         jsonFileBean.setAuthor(xeLogConfig.getAuthor());
         jsonFileBean.setPackageName(xeLogConfig.getPackageName());
         jsonFileBean.setRemarks(xeLogConfig.getRemarks(message));
-        ArrayList<String> stackTraceStrList = null;
-        StackTraceElement[] stackTrace = xeLogConfig.getStackTrace();
-        if (stackTrace != null) {
-            stackTraceStrList = new ArrayList<>();
-            for (int i = 0, length = stackTrace.length; i < length; i++) {
-                stackTraceStrList.add(stackTrace[i].toString());
-            }
-        }
-        jsonFileBean.setStackTrace(stackTraceStrList);
-        jsonFileBean.setThread(xeLogConfig.getThread());
+        jsonFileBean.setThread(thread);
         jsonFileBean.setSummary(xeLogConfig.getSummary(message));
         jsonFileBean.setContent(message);
         jsonFileBean.setTime(xeLogConfig.getTime());
+
+        ArrayList<String> stackTraceStrList = null;
+        if (stackTrace != null) {
+            stackTraceStrList = new ArrayList<>();
+            for (StackTraceElement aStackTrace : stackTrace) {
+                stackTraceStrList.add(aStackTrace.toString());
+            }
+        }
+        jsonFileBean.setStackTrace(stackTraceStrList);
         return gson.toJson(jsonFileBean);
     }
 }

@@ -82,6 +82,10 @@ public class JsonFilePrinter implements Printer {
     checkLogFolder();
   }
 
+  public void setFlattener(Flattener flattener) {
+    this.flattener = flattener;
+  }
+
   /**
    * Make sure the folder of log file exists.
    */

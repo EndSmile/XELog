@@ -6,6 +6,7 @@ import android.os.Bundle;
 
 import com.elvishew.xlog.LogLevel;
 import com.elvishew.xlog.XLog;
+import com.ldy.xelog.XELog;
 import com.ldy.xelog.config.auto.ActivityLog;
 
 /**
@@ -17,7 +18,7 @@ public class MyApplication extends Application{
     @Override
     public void onCreate() {
         super.onCreate();
-        XLog.init(LogLevel.ALL);
-        ActivityLog.init(this,"ldy@xdja.com");
+        XELog.init(this,true);
+        XELog.activeAutoLog(ActivityLog.getInstance("ldy"));
     }
 }

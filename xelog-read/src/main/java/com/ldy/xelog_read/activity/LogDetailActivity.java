@@ -2,6 +2,7 @@ package com.ldy.xelog_read.activity;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.widget.TextView;
@@ -12,7 +13,7 @@ import com.ldy.xelog_read.widget.LogDetailItem;
 
 import java.text.SimpleDateFormat;
 
-public class LogDetailActivity extends XELogReadActivity {
+public class LogDetailActivity extends XELogReadBaseActivity {
 
     public static final String LOG_ITEM = "log_item";
     private LogDetailItem liTime;
@@ -26,9 +27,13 @@ public class LogDetailActivity extends XELogReadActivity {
     private LogDetailItem liAuthor;
 
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
+    protected void attachView(@Nullable Bundle savedInstanceState) {
         setContentView(R.layout.activity_log_detail);
+    }
+
+    @Override
+    protected void initView(Bundle savedInstanceState) {
+        super.initView(savedInstanceState);
 
         liTime = ((LogDetailItem) findViewById(R.id.logDetailItem_time));
         liAuthor = ((LogDetailItem) findViewById(R.id.logDetailItem_author));

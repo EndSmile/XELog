@@ -150,4 +150,8 @@ public class XELogReadActivity extends XELogReadBaseActivity {
         dropGroup.setCheckBox(chkFiltrate);
     }
 
+    @Override
+    protected int getToolbarType() {
+        return TOOLBAR_TYPE_NORMAL;
+    }
 }

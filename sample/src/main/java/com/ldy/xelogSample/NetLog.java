@@ -12,9 +12,6 @@ import java.util.List;
  */
 
 public class NetLog extends XELogConfig {
-    public NetLog(Context context) {
-        super(context);
-    }
 
     @Override
     public String getAuthor() {
@@ -37,7 +34,7 @@ public class NetLog extends XELogConfig {
     }
 
     @Override
-    public List<String> getTag() {
+    public List<String> getBaseTag() {
         ArrayList<String> tags = new ArrayList<>();
         tags.add("net");
         tags.add("login");

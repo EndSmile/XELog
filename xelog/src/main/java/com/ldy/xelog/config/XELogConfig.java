@@ -4,17 +4,13 @@ import android.content.Context;
 import android.os.Environment;
 
 import com.elvishew.xlog.LogConfiguration;
-import com.elvishew.xlog.Logger;
-import com.elvishew.xlog.XLog;
-import com.elvishew.xlog.formatter.thread.DefaultThreadFormatter;
-import com.elvishew.xlog.internal.util.StackTraceUtil;
-import com.elvishew.xlog.printer.AndroidPrinter;
-import com.elvishew.xlog.printer.Printer;
-import com.ldy.xelog.jsonFile.JsonFileFlattener;
-import com.ldy.xelog.jsonFile.JsonFilePrinter;
+import com.ldy.xelog.XELog;
+import com.ldy.xelog.XELogger;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -22,14 +18,14 @@ import java.util.List;
  */
 public class XELogConfig {
     public static final String DEFAULT_TAG = "XELog";
+    public static final List<String> DEFAULT_TAG_LIST = Collections.singletonList(DEFAULT_TAG);
     protected Context context;
-    private StackTraceElement[] stackTrace;
-    private String thread;
-    private Logger androidLogger;
-    private Logger jsonFileLogger;
+    private final XELogger xeLogger;
 
-    public XELogConfig(Context context) {
-        this.context = context;
+    public XELogConfig() {
+        XELog.assertInitialization();
+        this.context = XELog.context;
+        xeLogger = new XELogger(this);
     }
 
     public String getAuthor() {
@@ -59,7 +55,7 @@ public class XELogConfig {
         return "";
     }
 
-    public List<String> getTag() {
+    public List<String> getBaseTag() {
         ArrayList<String> tags = new ArrayList<>();
         tags.add(DEFAULT_TAG);
         return tags;
@@ -73,17 +69,10 @@ public class XELogConfig {
         return false;
     }
 
-    //// TODO: 2017/3/6 增加map,保证异步线程读取时数据不错乱
-    public StackTraceElement[] getStackTrace() {
-        return stackTrace;
-    }
 
-    public String getThread() {
-        return thread;
-    }
 
     /**
-     * {@link LogConfiguration#tag 字段设置无效,必须使用{@link #getTag()}设置}
+     * {@link LogConfiguration#tag 字段设置无效,必须使用{@link #getBaseTag()}设置}
      *
      * @return
      */
@@ -92,7 +81,7 @@ public class XELogConfig {
     }
 
     public boolean isPrintConsole() {
-        return true;
+        return XELog.isShowConsole();
     }
 
     public boolean isPrintJsonFile() {
@@ -104,76 +93,10 @@ public class XELogConfig {
     }
 
     public void v(String message) {
-        if (withStackTrace()) {
-            stackTrace = StackTraceUtil.getCroppedRealStackTrack(new Throwable().getStackTrace(), 0);
-        } else {
-            stackTrace = null;
-        }
-        if (withThread()) {
-            thread = new DefaultThreadFormatter().format(Thread.currentThread());
-        } else {
-            thread = null;
-        }
-
-        if (isPrintJsonFile()){
-            if (jsonFileLogger == null) {
-                JsonFilePrinter jsonFilePrinter = new JsonFilePrinter.Builder(getFileDirPath())
-                        .logFlattener(new JsonFileFlattener(this))
-                        .build();
-                jsonFileLogger = XLog.tag(DEFAULT_TAG)
-                        .printers(jsonFilePrinter).build();
-            }
-            jsonFileLogger.v(message);
-        }
-
-        if (isPrintConsole()){
-            if (androidLogger == null) {
-                androidLogger = buildLogger(getXLogConfiguration(), getLogTagStr(), new AndroidPrinter());
-            }
-            androidLogger.v(message);
-        }
+        xeLogger.v(null,message);
     }
 
-    private Logger buildLogger(LogConfiguration logConfiguration, String tag, Printer... printer) {
-        if (logConfiguration == null) {
-            logConfiguration = new LogConfiguration.Builder().build();
-        }
-
-        Logger.Builder builder = new Logger.Builder();
-        builder.logLevel(logConfiguration.logLevel)
-                .tag(logConfiguration.tag)
-                .jsonFormatter(logConfiguration.jsonFormatter)
-                .xmlFormatter(logConfiguration.xmlFormatter)
-                .throwableFormatter(logConfiguration.throwableFormatter)
-                .threadFormatter(logConfiguration.threadFormatter)
-                .stackTraceFormatter(logConfiguration.stackTraceFormatter)
-                .borderFormatter(logConfiguration.borderFormatter);
-        if (logConfiguration.withStackTrace) {
-            builder.st(logConfiguration.stackTraceDepth);
-        }
-        if (logConfiguration.withThread) {
-            builder.t();
-        }
-        if (printer != null) {
-            builder.printers(printer);
-        }
-        if (tag == null) {
-            tag = DEFAULT_TAG;
-        }
-        builder.tag(tag);
-        return builder.build();
+    public void e(Throwable throwable){
+        xeLogger.e(null,throwable);
     }
-
-    private String getLogTagStr() {
-        StringBuilder builder = new StringBuilder();
-        List<String> tag = getTag();
-        for (int i = 0, length = tag.size(); i < length; i++) {
-            builder.append(tag.get(i));
-            if (i < length - 1) {
-                builder.append("_");
-            }
-        }
-        return builder.toString();
-    }
-
 }
