@@ -13,6 +13,7 @@ import java.util.List;
 public class ActivityLog extends AbstractAutoLog {
     protected static ActivityLog instance;
     private boolean active;
+    private Application.ActivityLifecycleCallbacks callback;
 
     protected ActivityLog(String author) {
         super(author);
@@ -29,47 +30,59 @@ public class ActivityLog extends AbstractAutoLog {
         return instance;
     }
 
-    public void active() {
+    public void activate() {
         if (active) {
             return;
         }
         this.active = true;
-        ((Application) context.getApplicationContext()).registerActivityLifecycleCallbacks(new Application.ActivityLifecycleCallbacks() {
-            @Override
-            public void onActivityCreated(Activity activity, Bundle savedInstanceState) {
-                v(activity.getClass().getName() + ":onCreate");
-            }
+        if (callback==null){
+            callback = new Application.ActivityLifecycleCallbacks() {
+                @Override
+                public void onActivityCreated(Activity activity, Bundle savedInstanceState) {
+                    v(activity.getClass().getName() + ":onCreate");
+                }
 
-            @Override
-            public void onActivityStarted(Activity activity) {
-                v(activity.getClass().getName() + ":onStart");
-            }
+                @Override
+                public void onActivityStarted(Activity activity) {
+                    v(activity.getClass().getName() + ":onStart");
+                }
 
-            @Override
-            public void onActivityResumed(Activity activity) {
-                v(activity.getClass().getName() + ":onResume");
-            }
+                @Override
+                public void onActivityResumed(Activity activity) {
+                    v(activity.getClass().getName() + ":onResume");
+                }
 
-            @Override
-            public void onActivityPaused(Activity activity) {
-                v(activity.getClass().getName() + ":onPause");
-            }
+                @Override
+                public void onActivityPaused(Activity activity) {
+                    v(activity.getClass().getName() + ":onPause");
+                }
 
-            @Override
-            public void onActivityStopped(Activity activity) {
-                v(activity.getClass().getName() + ":onStop");
-            }
+                @Override
+                public void onActivityStopped(Activity activity) {
+                    v(activity.getClass().getName() + ":onStop");
+                }
 
-            @Override
-            public void onActivitySaveInstanceState(Activity activity, Bundle outState) {
-                v(activity.getClass().getName() + ":onSaveInstanceState");
-            }
+                @Override
+                public void onActivitySaveInstanceState(Activity activity, Bundle outState) {
+                    v(activity.getClass().getName() + ":onSaveInstanceState");
+                }
 
-            @Override
-            public void onActivityDestroyed(Activity activity) {
-                v(activity.getClass().getName() + ":onDestroy");
-            }
-        });
+                @Override
+                public void onActivityDestroyed(Activity activity) {
+                    v(activity.getClass().getName() + ":onDestroy");
+                }
+            };
+        }
+        ((Application) context.getApplicationContext()).registerActivityLifecycleCallbacks(callback);
+    }
+
+    @Override
+    public void stop() {
+        if (callback == null || !active) {
+            return;
+        }
+        ((Application) context.getApplicationContext()).unregisterActivityLifecycleCallbacks(callback);
+        active = false;
     }
 
     @Override

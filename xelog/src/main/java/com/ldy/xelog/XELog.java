@@ -27,10 +27,10 @@ public class XELog {
         XELog.defaultShowConsole = defaultShowConsole;
     }
 
-    public static void activeAutoLog(IAutoLog... autoLogs){
+    public static void activateAutoLog(IAutoLog... autoLogs){
         if (autoLogs!=null){
             for (IAutoLog autoLog:autoLogs){
-                autoLog.active();
+                autoLog.activate();
             }
         }
     }

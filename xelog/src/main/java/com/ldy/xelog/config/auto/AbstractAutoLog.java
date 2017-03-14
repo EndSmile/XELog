@@ -19,6 +19,11 @@ public abstract class AbstractAutoLog extends XELogConfig implements IAutoLog{
     }
 
     @Override
+    public boolean tagSelect() {
+        return false;
+    }
+
+    @Override
     public String getAuthor() {
         return author;
     }

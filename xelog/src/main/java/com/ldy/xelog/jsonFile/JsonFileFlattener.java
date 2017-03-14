@@ -52,6 +52,9 @@ public class JsonFileFlattener implements Flattener {
         jsonFileBean.setSummary(xeLogConfig.getSummary(message));
         jsonFileBean.setContent(message);
         jsonFileBean.setTime(xeLogConfig.getTime());
+        if (!xeLogConfig.tagSelect()){
+            jsonFileBean.setTagSelect(false);
+        }
 
         ArrayList<String> stackTraceStrList = null;
         if (stackTrace != null) {

@@ -19,6 +19,7 @@ public class JsonFileBean {
      * remarks : 这是一个登录的网络操作
      * summary : method:login
      * content :
+     * tagSelect:如果为null则默认为选中
      */
     private long time;
     private String packageName;
@@ -30,6 +31,7 @@ public class JsonFileBean {
     private String summary;
     private String content;
     private List<String> tag;
+    private Boolean tagSelect;
 
     public long getTime() {
         return time;
@@ -109,5 +111,13 @@ public class JsonFileBean {
 
     public void setTag(List<String> tag) {
         this.tag = tag;
+    }
+
+    public Boolean isTagSelect() {
+        return tagSelect;
+    }
+
+    public void setTagSelect(Boolean tagSelect) {
+        this.tagSelect = tagSelect;
     }
 }

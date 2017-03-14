@@ -66,10 +66,10 @@ public class XELogConfig {
     }
 
     public boolean withThread() {
-        return false;
+        return true;
     }
 
-
+    public boolean tagSelect(){return true;}
 
     /**
      * {@link LogConfiguration#tag 字段设置无效,必须使用{@link #getBaseTag()}设置}

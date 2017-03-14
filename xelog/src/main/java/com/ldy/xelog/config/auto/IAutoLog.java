@@ -5,5 +5,6 @@ package com.ldy.xelog.config.auto;
  */
 
 public interface IAutoLog {
-    void active();
+    void activate();
+    void stop();
 }
