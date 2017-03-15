@@ -30,7 +30,6 @@ public class XELog {
             initParams = new InitParams();
         }
         XELog.initParams = initParams;
-        activateAutoLog(initParams.autoLogs);
     }
 
     public static void activateAutoLog(IAutoLog... autoLogs) {
@@ -51,7 +50,6 @@ public class XELog {
     public static class InitParams {
         boolean printConsole = true;
         boolean printJsonFile = true;
-        IAutoLog[] autoLogs;
 
         public InitParams disPrintConsole() {
             printConsole = false;
@@ -60,11 +58,6 @@ public class XELog {
 
         public InitParams disPrintJsonFile() {
             printJsonFile = false;
-            return this;
-        }
-
-        public InitParams activateAutoLog(IAutoLog... autoLogs) {
-            autoLogs = autoLogs;
             return this;
         }
     }
