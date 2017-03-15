@@ -10,12 +10,14 @@ import com.ldy.xelog.config.auto.CrashCatchLog;
  * Created by ldy on 2017/3/8.
  */
 
-public class MyApplication extends Application{
+public class MyApplication extends Application {
 
     @Override
     public void onCreate() {
         super.onCreate();
-        XELog.init(this,true);
-        XELog.activateAutoLog(ActivityLog.getInstance("ldy"),new CrashCatchLog("ldy"));
+        XELog.init(this,
+                new XELog.InitParams()
+                        .activateAutoLog(ActivityLog.getInstance("ldy"), new CrashCatchLog("ldy"))
+        );
     }
 }

@@ -66,7 +66,8 @@ public class CrashCatchLog extends AbstractAutoLog implements Thread.UncaughtExc
     public void uncaughtException(Thread t, Throwable e) {
         e(e);
         if (handler == null) {
-            defaultHandler.uncaughtException(t, e);
+            if (defaultHandler != null)
+                defaultHandler.uncaughtException(t, e);
         } else {
             handler.uncaughtException(t, e);
         }

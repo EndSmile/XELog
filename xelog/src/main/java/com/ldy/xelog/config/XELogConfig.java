@@ -28,14 +28,24 @@ public class XELogConfig {
         xeLogger = new XELogger(this);
     }
 
+    /**
+     * @return the author of the log
+     */
     public String getAuthor() {
         return null;
     }
 
+    /**
+     * @return the time of the log
+     */
     public long getTime() {
         return System.currentTimeMillis();
     }
 
+    /**
+     * @param message the message of the log
+     * @return  the remarks of the log
+     */
     public String getRemarks(String message) {
         return null;
     }
@@ -81,7 +91,7 @@ public class XELogConfig {
     }
 
     public boolean isPrintConsole() {
-        return XELog.isShowConsole();
+        return true;
     }
 
     public boolean isPrintJsonFile() {

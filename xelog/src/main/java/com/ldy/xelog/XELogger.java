@@ -31,14 +31,18 @@ public class XELogger {
     }
 
     public void v(List<String> plusTag, String message) {
-        println(Log.VERBOSE,plusTag,message);
+        println(Log.VERBOSE, plusTag, message);
     }
 
-    public void e(List<String> plusTag, Throwable throwable){
-        println(Log.ERROR,plusTag,throwable);
+    public void e(List<String> plusTag, Throwable throwable) {
+        println(Log.ERROR, plusTag, throwable);
     }
 
     private void println(int level, List<String> plusTag, Object message) {
+        if (isIntercept()) {
+            return;
+        }
+
         StackTraceElement[] stackTrace = null;
         String thread = null;
         if (config.withStackTrace()) {
@@ -132,14 +136,19 @@ public class XELogger {
         return builder.toString();
     }
 
-    private List<String> getLogTag(List<String> plusTag){
+    private List<String> getLogTag(List<String> plusTag) {
         List<String> fullTag;
         if (plusTag != null) {
             fullTag = new ArrayList<>(config.getBaseTag());
             fullTag.addAll(plusTag);
-        }else {
+        } else {
             fullTag = config.getBaseTag();
         }
         return fullTag;
+    }
+
+    private boolean isIntercept() {
+        return !(config.isPrintConsole() && XELog.initParams.printConsole
+                || config.isPrintJsonFile() && XELog.initParams.printJsonFile);
     }
 }
