@@ -1,7 +1,5 @@
 package com.ldy.xelog.config.auto;
 
-import android.content.Context;
-
 import com.ldy.xelog.config.XELogConfig;
 
 import java.util.ArrayList;

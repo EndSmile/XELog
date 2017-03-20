@@ -1,6 +1,4 @@
-package com.ldy.xelogSample;
-
-import android.content.Context;
+package com.ldy.xelogsample;
 
 import com.ldy.xelog.config.XELogConfig;
 

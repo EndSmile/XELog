@@ -1,4 +1,4 @@
-package com.ldy.xelogSample;
+package com.ldy.xelogsample;
 
 import android.app.Application;
 

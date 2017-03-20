@@ -16,6 +16,12 @@ import java.io.InputStreamReader;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.function.BiFunction;
+
+import io.reactivex.Observable;
+import io.reactivex.ObservableEmitter;
+import io.reactivex.ObservableOnSubscribe;
+import io.reactivex.subjects.PublishSubject;
 
 /**
  * Created by ldy on 2017/3/6.
@@ -39,22 +45,33 @@ public class XELogReadControl {
 
     private DataLoadListener dataLoadListener;
     private List<JsonFileBean> dataList;
+    private Observable<List<JsonFileBean>> observable;
 
     public XELogReadControl(Context context) {
         this.context = context;
     }
 
-    public void init(final DataLoadListener dataLoadListener) {
+    public Observable<List<JsonFileBean>> init(final DataLoadListener dataLoadListener) {
         this.dataLoadListener = dataLoadListener;
-
-        new Thread(new Runnable() {
+        observable = Observable.create(new ObservableOnSubscribe<List<JsonFileBean>>() {
             @Override
-            public void run() {
+            public void subscribe(ObservableEmitter<List<JsonFileBean>> e) throws Exception {
                 dataList = readFile();
                 initState(dataList);
-                dataLoadListener.loadFinish(dataList);
+                e.onNext(dataList);
+//                dataLoadListener.loadFinish(dataList);
             }
-        }).start();
+        });
+        return observable;
+
+//        new Thread(new Runnable() {
+//            @Override
+//            public void run() {
+//                dataList = readFile();
+//                initState(dataList);
+//                dataLoadListener.loadFinish(dataList);
+//            }
+//        }).start();
     }
 
     private void initState(List<JsonFileBean> dataList) {
@@ -97,6 +114,10 @@ public class XELogReadControl {
     }
 
     public int jumpTime(long time) {
+//        Observable.fromArray(dataList.toArray(new JsonFileBean[dataList.size()])).reduce((a,b)->{
+//
+//        });
+
         long dif = Math.abs(dataList.get(0).getTime() - time);
         int position = 0;
         for (int i = 0, length = dataList.size(); i < length; i++) {
@@ -110,6 +131,8 @@ public class XELogReadControl {
         checkedTime = dataList.get(position).getTime();
         return position;
     }
+
+
 
     private List<JsonFileBean> readFile() {
         StringBuilder content = new StringBuilder("["); //文件内容字符串

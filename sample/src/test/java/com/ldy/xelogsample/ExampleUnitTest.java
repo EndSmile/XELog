@@ -1,4 +1,4 @@
-package com.ldy.xelog;
+package com.ldy.xelogsample;
 
 import org.junit.Test;
 

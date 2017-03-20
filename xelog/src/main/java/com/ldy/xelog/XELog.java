@@ -4,8 +4,6 @@ import android.content.Context;
 
 import com.ldy.xelog.config.auto.IAutoLog;
 
-import java.util.List;
-
 /**
  * Created by ldy on 2017/3/13.
  */
