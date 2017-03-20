@@ -16,6 +16,6 @@ public class MyApplication extends Application {
     public void onCreate() {
         super.onCreate();
         XELog.init(this);
-        XELog.activateAutoLog(ActivityLog.getInstance("ldy"), new CrashCatchLog("ldy"));
+        XELog.activateAutoLog(ActivityLog.getInstance("ldy"),new CrashCatchLog("ldy"));
     }
 }

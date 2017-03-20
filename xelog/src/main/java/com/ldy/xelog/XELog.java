@@ -2,6 +2,7 @@ package com.ldy.xelog;
 
 import android.content.Context;
 
+import com.elvishew.xlog.XLog;
 import com.ldy.xelog.config.auto.IAutoLog;
 
 /**
@@ -27,6 +28,7 @@ public class XELog {
         if (initParams == null) {
             initParams = new InitParams();
         }
+        XLog.init();
         XELog.initParams = initParams;
     }
 

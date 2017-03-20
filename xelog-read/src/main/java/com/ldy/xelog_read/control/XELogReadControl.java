@@ -16,11 +16,16 @@ import java.io.InputStreamReader;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.function.BiFunction;
 
+import io.reactivex.Maybe;
 import io.reactivex.Observable;
 import io.reactivex.ObservableEmitter;
 import io.reactivex.ObservableOnSubscribe;
+import io.reactivex.Scheduler;
+import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.annotations.NonNull;
+import io.reactivex.functions.Function;
+import io.reactivex.internal.schedulers.IoScheduler;
 import io.reactivex.subjects.PublishSubject;
 
 /**
@@ -51,27 +56,31 @@ public class XELogReadControl {
         this.context = context;
     }
 
-    public Observable<List<JsonFileBean>> init(final DataLoadListener dataLoadListener) {
-        this.dataLoadListener = dataLoadListener;
+    public Observable<List<JsonFileBean>> init() {
         observable = Observable.create(new ObservableOnSubscribe<List<JsonFileBean>>() {
             @Override
             public void subscribe(ObservableEmitter<List<JsonFileBean>> e) throws Exception {
-                dataList = readFile();
-                initState(dataList);
+                dataList = XELogReadControl.this.readFile();
+                XELogReadControl.this.initState(dataList);
                 e.onNext(dataList);
-//                dataLoadListener.loadFinish(dataList);
             }
-        });
+        }).subscribeOn(new IoScheduler())
+        .observeOn(AndroidSchedulers.mainThread());
         return observable;
 
-//        new Thread(new Runnable() {
-//            @Override
-//            public void run() {
-//                dataList = readFile();
-//                initState(dataList);
-//                dataLoadListener.loadFinish(dataList);
-//            }
-//        }).start();
+    }
+
+    public void init(final DataLoadListener dataLoadListener) {
+        this.dataLoadListener = dataLoadListener;
+
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                dataList = readFile();
+                initState(dataList);
+                dataLoadListener.loadFinish(dataList);
+            }
+        }).start();
     }
 
     private void initState(List<JsonFileBean> dataList) {
@@ -114,10 +123,6 @@ public class XELogReadControl {
     }
 
     public int jumpTime(long time) {
-//        Observable.fromArray(dataList.toArray(new JsonFileBean[dataList.size()])).reduce((a,b)->{
-//
-//        });
-
         long dif = Math.abs(dataList.get(0).getTime() - time);
         int position = 0;
         for (int i = 0, length = dataList.size(); i < length; i++) {
@@ -132,6 +137,27 @@ public class XELogReadControl {
         return position;
     }
 
+    public Maybe<Integer> observableJumpTime(final long time) {
+        return Observable.fromArray(dataList.toArray(new JsonFileBean[dataList.size()]))
+                .reduce(new io.reactivex.functions.BiFunction<JsonFileBean, JsonFileBean, JsonFileBean>() {
+                    @Override
+                    public JsonFileBean apply(@NonNull JsonFileBean a, @NonNull JsonFileBean b) throws Exception {
+                        long temp1 = Math.abs(a.getTime() - time);
+                        long temp2 = Math.abs(b.getTime() - time);
+                        if (temp1 < temp2) {
+                            return a;
+                        } else {
+                            return b;
+                        }
+                    }
+                })
+                .map(new Function<JsonFileBean, Integer>() {
+                    @Override
+                    public Integer apply(@NonNull JsonFileBean a) throws Exception {
+                        return dataList.indexOf(a);
+                    }
+                });
+    }
 
 
     private List<JsonFileBean> readFile() {

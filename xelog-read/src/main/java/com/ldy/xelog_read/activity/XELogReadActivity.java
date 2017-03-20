@@ -23,6 +23,9 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
 
+import io.reactivex.annotations.NonNull;
+import io.reactivex.functions.Consumer;
+
 public class XELogReadActivity extends XELogReadBaseActivity {
 
     private XELogReadControl xeLogReadControl;
@@ -55,12 +58,10 @@ public class XELogReadActivity extends XELogReadBaseActivity {
     protected void initView(@Nullable Bundle savedInstanceState) {
         bindView();
         xeLogReadControl = new XELogReadControl(this);
-        xeLogReadControl.init(new XELogReadControl.DataLoadListener() {
-            @Override
-            public void loadFinish(final List<JsonFileBean> jsonFileBeen) {
-                runOnUiThread(new Runnable() {
+        xeLogReadControl.init()
+                .subscribe(new Consumer<List<JsonFileBean>>() {
                     @Override
-                    public void run() {
+                    public void accept(@NonNull List<JsonFileBean> jsonFileBeen) throws Exception {
                         Log.d("XELogReadActivity", "loadfinish");
                         if (adapter == null) {
                             adapter = new LogListAdapter(XELogReadActivity.this, jsonFileBeen);
@@ -72,8 +73,27 @@ public class XELogReadActivity extends XELogReadBaseActivity {
                         initMultiSelFiltrate();
                     }
                 });
-            }
-        });
+
+//        xeLogReadControl.init(new XELogReadControl.DataLoadListener() {
+//            @Override
+//            public void loadFinish(final List<JsonFileBean> jsonFileBeen) {
+//
+//                runOnUiThread(new Runnable() {
+//                    @Override
+//                    public void run() {
+//                        Log.d("XELogReadActivity", "loadfinish");
+//                        if (adapter == null) {
+//                            adapter = new LogListAdapter(XELogReadActivity.this, jsonFileBeen);
+//                            lvLog.setAdapter(adapter);
+//                        } else {
+//                            adapter.setData(jsonFileBeen);
+//                        }
+//                        initTimeFiltrate();
+//                        initMultiSelFiltrate();
+//                    }
+//                });
+//            }
+//        });
 
         lvLog.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
@@ -140,10 +160,16 @@ public class XELogReadActivity extends XELogReadBaseActivity {
                 long time = msSelect.getTime();
                 final SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
                 Log.d("XELogReadActivity", simpleDateFormat.format(new Date(time)));
-                int position = xeLogReadControl.jumpTime(time);
-                msSelect.setTime(xeLogReadControl.getCheckedTime());
-                lvLog.setSelection(adapter.getRealPosition(position));
-                dropGroup.fold(true);
+//                int position = xeLogReadControl.jumpTime(time);
+                xeLogReadControl.observableJumpTime(time)
+                        .subscribe(new Consumer<Integer>() {
+                            @Override
+                            public void accept(@NonNull Integer position) throws Exception {
+                                msSelect.setTime(xeLogReadControl.getCheckedTime());
+                                lvLog.setSelection(adapter.getRealPosition(position));
+                                dropGroup.fold(true);
+                            }
+                        });
             }
         });
 
