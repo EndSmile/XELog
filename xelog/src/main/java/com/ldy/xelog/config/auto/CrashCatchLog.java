@@ -10,6 +10,11 @@ public class CrashCatchLog extends AbstractAutoLog implements Thread.UncaughtExc
     private Thread.UncaughtExceptionHandler defaultHandler;
     private boolean isActive;
 
+    @Override
+    public boolean withStackTrace() {
+        return true;
+    }
+
     public CrashCatchLog(String author) {
         this(author, null);
     }
@@ -17,6 +22,17 @@ public class CrashCatchLog extends AbstractAutoLog implements Thread.UncaughtExc
     public CrashCatchLog(String author, Thread.UncaughtExceptionHandler handler) {
         super(author);
         this.handler = handler;
+    }
+
+    @Override
+    public String getSummary(String msg) {
+        try {
+            String[] strings = msg.split(":");
+            String[] fullClass = strings[0].split(".");
+            return fullClass[fullClass.length - 1];
+        }catch (Exception ignored){
+        }
+        return super.getSummary(msg);
     }
 
     @Override

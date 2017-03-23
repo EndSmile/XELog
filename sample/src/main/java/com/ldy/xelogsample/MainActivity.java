@@ -4,6 +4,8 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
 
+import com.ldy.xelogsample1.R;
+
 public class MainActivity extends AppCompatActivity {
 
     private NetLog netLog;

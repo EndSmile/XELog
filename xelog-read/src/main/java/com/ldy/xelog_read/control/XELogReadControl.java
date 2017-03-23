@@ -7,31 +7,31 @@ import android.util.Log;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import com.ldy.xelog_read.bean.JsonFileBean;
+import com.ldy.xelog_read.utils.FileUtils;
 
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
 import io.reactivex.Maybe;
 import io.reactivex.Observable;
-import io.reactivex.ObservableEmitter;
 import io.reactivex.ObservableOnSubscribe;
 import io.reactivex.Scheduler;
+import io.reactivex.Single;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.annotations.NonNull;
-import io.reactivex.functions.Function;
-import io.reactivex.internal.schedulers.IoScheduler;
-import io.reactivex.subjects.PublishSubject;
+import io.reactivex.functions.BiConsumer;
+import io.reactivex.schedulers.Schedulers;
 
 /**
  * Created by ldy on 2017/3/6.
  */
-
 public class XELogReadControl {
     private Context context;
 
@@ -48,39 +48,21 @@ public class XELogReadControl {
     private Set<String> threads;
     private Set<String> checkedThreads;
 
-    private DataLoadListener dataLoadListener;
     private List<JsonFileBean> dataList;
-    private Observable<List<JsonFileBean>> observable;
 
     public XELogReadControl(Context context) {
         this.context = context;
     }
 
     public Observable<List<JsonFileBean>> init() {
-        observable = Observable.create(new ObservableOnSubscribe<List<JsonFileBean>>() {
-            @Override
-            public void subscribe(ObservableEmitter<List<JsonFileBean>> e) throws Exception {
-                dataList = XELogReadControl.this.readFile();
-                XELogReadControl.this.initState(dataList);
-                e.onNext(dataList);
-            }
-        }).subscribeOn(new IoScheduler())
-        .observeOn(AndroidSchedulers.mainThread());
-        return observable;
+        return Observable.create((ObservableOnSubscribe<List<JsonFileBean>>) e -> {
+            dataList = XELogReadControl.this.readFile();
+            XELogReadControl.this.initState(dataList);
+            e.onNext(dataList);
+            e.onComplete();
+        }).subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread());
 
-    }
-
-    public void init(final DataLoadListener dataLoadListener) {
-        this.dataLoadListener = dataLoadListener;
-
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                dataList = readFile();
-                initState(dataList);
-                dataLoadListener.loadFinish(dataList);
-            }
-        }).start();
     }
 
     private void initState(List<JsonFileBean> dataList) {
@@ -122,60 +104,35 @@ public class XELogReadControl {
         checkedAuthors = new HashSet<>(authors);
     }
 
-    public int jumpTime(long time) {
-        long dif = Math.abs(dataList.get(0).getTime() - time);
-        int position = 0;
-        for (int i = 0, length = dataList.size(); i < length; i++) {
-            JsonFileBean jsonFileBean = dataList.get(i);
-            long temp = Math.abs(jsonFileBean.getTime() - time);
-            if (temp < dif) {
-                dif = temp;
-                position = i;
-            }
-        }
-        checkedTime = dataList.get(position).getTime();
-        return position;
+    public Maybe<Integer> jumpTime(final long time) {
+        return Observable.fromArray(dataList.toArray(new JsonFileBean[dataList.size()]))
+                .reduce((a, b) -> {
+                    long temp1 = Math.abs(a.getTime() - time);
+                    long temp2 = Math.abs(b.getTime() - time);
+                    return temp1 < temp2 ? a : b;
+                })
+                .map(a -> dataList.indexOf(a))
+                .subscribeOn(Schedulers.computation())
+                .observeOn(AndroidSchedulers.mainThread());
     }
 
-    public Maybe<Integer> observableJumpTime(final long time) {
+    public Single<ArrayList<JsonFileBean>> filtrate(List<String> levels,
+                                                   List<String> threads,
+                                                   List<String> authors) {
+
+        ArrayList<JsonFileBean> jsonFileBeen = new ArrayList<>();
         return Observable.fromArray(dataList.toArray(new JsonFileBean[dataList.size()]))
-                .reduce(new io.reactivex.functions.BiFunction<JsonFileBean, JsonFileBean, JsonFileBean>() {
-                    @Override
-                    public JsonFileBean apply(@NonNull JsonFileBean a, @NonNull JsonFileBean b) throws Exception {
-                        long temp1 = Math.abs(a.getTime() - time);
-                        long temp2 = Math.abs(b.getTime() - time);
-                        if (temp1 < temp2) {
-                            return a;
-                        } else {
-                            return b;
-                        }
-                    }
-                })
-                .map(new Function<JsonFileBean, Integer>() {
-                    @Override
-                    public Integer apply(@NonNull JsonFileBean a) throws Exception {
-                        return dataList.indexOf(a);
-                    }
-                });
+                .filter(jsonFileBean -> levels.contains(jsonFileBean.getLevel()))
+                .filter(jsonFileBean -> threads.contains(jsonFileBean.getThread()))
+                .filter(jsonFileBean -> authors.contains(jsonFileBean.getAuthor()))
+                .collectInto(jsonFileBeen, ArrayList::add);
     }
 
 
     private List<JsonFileBean> readFile() {
         StringBuilder content = new StringBuilder("["); //文件内容字符串
         String xelog = new File(Environment.getExternalStorageDirectory(), "xelog").getPath() + "/log";
-        Log.d("XELogReadControl", xelog);
-        File file = new File(xelog);
-        try {
-            InputStream instream = new FileInputStream(file);//读取输入流
-            InputStreamReader inputreader = new InputStreamReader(instream);//设置流读取方式
-            BufferedReader buffreader = new BufferedReader(inputreader);
-            String line;
-            while ((line = buffreader.readLine()) != null) {
-                content.append(line).append("\n");//读取的文件内容
-            }
-        } catch (Exception ex) {
-            ex.printStackTrace();
-        }
+        content.append(FileUtils.readFile(xelog));
         content.append("]");
 
         List<JsonFileBean> list = new Gson().fromJson(content.toString(), new TypeToken<List<JsonFileBean>>() {
@@ -234,7 +191,4 @@ public class XELogReadControl {
         return checkedThreads;
     }
 
-    public interface DataLoadListener {
-        void loadFinish(List<JsonFileBean> jsonFileBeen);
-    }
 }

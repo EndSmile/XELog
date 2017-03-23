@@ -4,7 +4,6 @@ import android.support.annotation.Nullable;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
-import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.ListView;
@@ -20,8 +19,8 @@ import com.ldy.xelog_read.widget.dropGroup.DropGroup;
 import com.ldy.xelog_read.widget.multiSelect.MultiSelect;
 
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
-import java.util.List;
 
 import io.reactivex.annotations.NonNull;
 import io.reactivex.functions.Consumer;
@@ -47,6 +46,7 @@ public class XELogReadActivity extends XELogReadBaseActivity {
     private MultiSelect multiSelLevel;
     private MultiSelect multiSelThread;
     private MultiSelect multiSelAuthor;
+    private Button btnFiletrate;
 
 
     @Override
@@ -59,54 +59,26 @@ public class XELogReadActivity extends XELogReadBaseActivity {
         bindView();
         xeLogReadControl = new XELogReadControl(this);
         xeLogReadControl.init()
-                .subscribe(new Consumer<List<JsonFileBean>>() {
-                    @Override
-                    public void accept(@NonNull List<JsonFileBean> jsonFileBeen) throws Exception {
-                        Log.d("XELogReadActivity", "loadfinish");
-                        if (adapter == null) {
-                            adapter = new LogListAdapter(XELogReadActivity.this, jsonFileBeen);
-                            lvLog.setAdapter(adapter);
-                        } else {
-                            adapter.setData(jsonFileBeen);
-                        }
-                        initTimeFiltrate();
-                        initMultiSelFiltrate();
+                .subscribe(jsonFileBeen -> {
+                    Log.d("XELogReadActivity", "loadfinish");
+                    if (adapter == null) {
+                        adapter = new LogListAdapter(XELogReadActivity.this, jsonFileBeen);
+                        lvLog.setAdapter(adapter);
+                    } else {
+                        adapter.setData(jsonFileBeen);
                     }
+                    initTimeFiltrate();
+                    initMultiSelFiltrate();
                 });
 
-//        xeLogReadControl.init(new XELogReadControl.DataLoadListener() {
-//            @Override
-//            public void loadFinish(final List<JsonFileBean> jsonFileBeen) {
-//
-//                runOnUiThread(new Runnable() {
-//                    @Override
-//                    public void run() {
-//                        Log.d("XELogReadActivity", "loadfinish");
-//                        if (adapter == null) {
-//                            adapter = new LogListAdapter(XELogReadActivity.this, jsonFileBeen);
-//                            lvLog.setAdapter(adapter);
-//                        } else {
-//                            adapter.setData(jsonFileBeen);
-//                        }
-//                        initTimeFiltrate();
-//                        initMultiSelFiltrate();
-//                    }
-//                });
-//            }
-//        });
-
-        lvLog.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                LogDetailActivity.navigation(XELogReadActivity.this, adapter.getJsonFileBean(position));
-            }
-        });
+        lvLog.setOnItemClickListener((parent, view, position, id) ->
+                LogDetailActivity.navigation(XELogReadActivity.this, adapter.getJsonFileBean(position)));
     }
 
     private void initMultiSelFiltrate() {
         multiSelLevel.setContent("level:",xeLogReadControl.getLevels(),xeLogReadControl.getCheckedLevels());
         multiSelAuthor.setContent("author:",xeLogReadControl.getAuthors(),xeLogReadControl.getCheckedAuthors());
-        multiSelAuthor.setContent("thread:",xeLogReadControl.getThreads(),xeLogReadControl.getCheckedThreads());
+        multiSelThread.setContent("thread:",xeLogReadControl.getThreads(),xeLogReadControl.getCheckedThreads());
     }
 
     private void initTimeFiltrate() {
@@ -133,6 +105,7 @@ public class XELogReadActivity extends XELogReadBaseActivity {
         multiSelLevel = (MultiSelect) findViewById(R.id.multiSel_level);
         multiSelAuthor = (MultiSelect) findViewById(R.id.multiSel_author);
         multiSelThread = (MultiSelect) findViewById(R.id.multiSel_thread);
+        btnFiletrate = (Button) findViewById(R.id.btn_xelog_read_filtrate_certain);
 
         seekBarTime.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
@@ -154,24 +127,23 @@ public class XELogReadActivity extends XELogReadBaseActivity {
 
             }
         });
-        btnTimeCertain.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                long time = msSelect.getTime();
-                final SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
-                Log.d("XELogReadActivity", simpleDateFormat.format(new Date(time)));
-//                int position = xeLogReadControl.jumpTime(time);
-                xeLogReadControl.observableJumpTime(time)
-                        .subscribe(new Consumer<Integer>() {
-                            @Override
-                            public void accept(@NonNull Integer position) throws Exception {
-                                msSelect.setTime(xeLogReadControl.getCheckedTime());
-                                lvLog.setSelection(adapter.getRealPosition(position));
-                                dropGroup.fold(true);
-                            }
-                        });
-            }
+        btnTimeCertain.setOnClickListener(v -> {
+            long time = msSelect.getTime();
+            final SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
+            Log.d("XELogReadActivity", simpleDateFormat.format(new Date(time)));
+            xeLogReadControl.jumpTime(time)
+                    .subscribe(position -> {
+                        msSelect.setTime(xeLogReadControl.getCheckedTime());
+                        lvLog.setSelection(adapter.getRealPosition(position));
+                        dropGroup.fold(true);
+                    });
         });
+
+        btnFiletrate.setOnClickListener((view)->{
+            xeLogReadControl.filtrate(multiSelLevel.getSelect(),multiSelThread.getSelect(),multiSelAuthor.getSelect())
+                    .subscribe(jsonFileBeen -> adapter.setData(jsonFileBeen));
+        });
+
 
         dropGroup.setCheckBox(chkFiltrate);
     }

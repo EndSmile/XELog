@@ -4,7 +4,7 @@ android {
     compileSdkVersion 25
     buildToolsVersion "25.0.2"
     defaultConfig {
-        applicationId "com.ldy.xelogSample"
+        applicationId "com.ldy.xelogsample"
         minSdkVersion 14
         targetSdkVersion 25
         versionCode 1

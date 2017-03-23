@@ -19,7 +19,7 @@ public class MultiSelect extends LinearLayout {
     private TextView tvTitle;
 
     public MultiSelect(Context context) {
-        this(context,null);
+        this(context, null);
     }
 
     public MultiSelect(Context context, AttributeSet attrs) {
@@ -27,13 +27,13 @@ public class MultiSelect extends LinearLayout {
         setOrientation(VERTICAL);
     }
 
-    public void setContent(String title, Set<String> content, Set<String> checkedContent){
+    public void setContent(String title, Set<String> content, Set<String> checkedContent) {
         contentList = new ArrayList<>();
         tvTitle = new TextView(getContext());
         tvTitle.setText(title);
         addView(tvTitle);
-        for (String s:content){
-            if (TextUtils.isEmpty(s)){
+        for (String s : content) {
+            if (TextUtils.isEmpty(s)) {
                 continue;
             }
             CheckBox checkBox = new CheckBox(getContext());
@@ -42,5 +42,15 @@ public class MultiSelect extends LinearLayout {
             contentList.add(checkBox);
             addView(checkBox);
         }
+    }
+
+    public List<String> getSelect() {
+        ArrayList<String> selects = new ArrayList<>();
+        for (CheckBox checkBox : contentList) {
+            if (checkBox.isChecked()) {
+                selects.add(checkBox.getText().toString());
+            }
+        }
+        return selects;
     }
 }
