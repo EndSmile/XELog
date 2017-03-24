@@ -11,12 +11,23 @@
     tools:context="com.ldy.xelogsample.MainActivity">
 
 
-
     <Button
-        android:text="Button"
-        android:onClick="click"
+        android:id="@+id/button"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="116dp"
-        android:id="@+id/button" />
+        android:onClick="netLog"
+        android:text="网络日志" />
+
+    <Button
+        android:id="@+id/button2"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignBottom="@+id/button"
+        android:layout_alignParentEnd="true"
+        android:layout_alignParentRight="true"
+        android:layout_marginEnd="83dp"
+        android:layout_marginRight="83dp"
+        android:onClick="errorLog"
+        android:text="error日志" />
 </RelativeLayout>

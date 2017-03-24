@@ -7,8 +7,8 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.widget.TextView;
 
+import com.ldy.xelog.common.JsonFileBean;
 import com.ldy.xelog_read.R;
-import com.ldy.xelog_read.bean.JsonFileBean;
 import com.ldy.xelog_read.widget.LogDetailItem;
 
 import java.text.SimpleDateFormat;

@@ -1,19 +1,17 @@
 package com.ldy.xelog.config.auto;
 
+import com.elvishew.xlog.LogConfiguration;
+
+import java.util.List;
+
 /**
  * Created by ldy on 2017/3/14.
  */
-
 public class CrashCatchLog extends AbstractAutoLog implements Thread.UncaughtExceptionHandler {
 
     private final Thread.UncaughtExceptionHandler handler;
     private Thread.UncaughtExceptionHandler defaultHandler;
     private boolean isActive;
-
-    @Override
-    public boolean withStackTrace() {
-        return true;
-    }
 
     public CrashCatchLog(String author) {
         this(author, null);
@@ -28,11 +26,16 @@ public class CrashCatchLog extends AbstractAutoLog implements Thread.UncaughtExc
     public String getSummary(String msg) {
         try {
             String[] strings = msg.split(":");
-            String[] fullClass = strings[0].split(".");
+            String[] fullClass = strings[0].split("\\.");
             return fullClass[fullClass.length - 1];
         }catch (Exception ignored){
         }
         return super.getSummary(msg);
+    }
+
+    @Override
+    public LogConfiguration getXLogConfiguration() {
+        return new LogConfiguration.Builder().build();
     }
 
     @Override
@@ -80,7 +83,7 @@ public class CrashCatchLog extends AbstractAutoLog implements Thread.UncaughtExc
      */
     @Override
     public void uncaughtException(Thread t, Throwable e) {
-        e(e);
+        e(getXLogConfiguration().throwableFormatter.format(e));
         if (handler == null) {
             if (defaultHandler != null)
                 defaultHandler.uncaughtException(t, e);
@@ -89,4 +92,10 @@ public class CrashCatchLog extends AbstractAutoLog implements Thread.UncaughtExc
         }
     }
 
+    @Override
+    public List<String> getBaseTag() {
+        List<String> tags = super.getBaseTag();
+        tags.add("crash");
+        return tags;
+    }
 }

@@ -1,6 +1,7 @@
 package com.ldy.xelog.config;
 
 import android.content.Context;
+import android.os.Build;
 import android.os.Environment;
 
 import com.elvishew.xlog.LogConfiguration;
@@ -43,7 +44,7 @@ public class XELogConfig {
 
     /**
      * @param message the message of the log
-     * @return  the remarks of the log
+     * @return the remarks of the log
      */
     public String getRemarks(String message) {
         return null;
@@ -78,7 +79,9 @@ public class XELogConfig {
         return true;
     }
 
-    public boolean tagSelect(){return true;}
+    public boolean tagSelect() {
+        return true;
+    }
 
     /**
      * {@link LogConfiguration#tag 字段设置无效,必须使用{@link #getBaseTag()}设置}
@@ -97,15 +100,11 @@ public class XELogConfig {
         return true;
     }
 
-    public String getFileDirPath() {
-        return new File(Environment.getExternalStorageDirectory(), "xelog").getPath();
-    }
-
     public void v(String message) {
-        xeLogger.v(null,message);
+        xeLogger.v(null, message);
     }
 
-    public void e(Throwable throwable){
-        xeLogger.e(null,throwable);
+    public void e(String string) {
+        xeLogger.e(null,string);
     }
 }

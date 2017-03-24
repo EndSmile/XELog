@@ -3,6 +3,7 @@ package com.ldy.xelog.jsonFile;
 import com.elvishew.xlog.LogLevel;
 import com.elvishew.xlog.flattener.Flattener;
 import com.google.gson.Gson;
+import com.ldy.xelog.common.JsonFileBean;
 import com.ldy.xelog.config.XELogConfig;
 
 import java.util.ArrayList;

@@ -2,11 +2,13 @@ package com.ldy.xelog_read.control;
 
 import android.content.Context;
 import android.os.Environment;
+import android.text.TextUtils;
 import android.util.Log;
 
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
-import com.ldy.xelog_read.bean.JsonFileBean;
+import com.ldy.xelog.common.JsonFileBean;
+import com.ldy.xelog_read.XelogRead;
 import com.ldy.xelog_read.utils.FileUtils;
 
 import java.io.BufferedReader;
@@ -57,7 +59,7 @@ public class XELogReadControl {
     public Observable<List<JsonFileBean>> init() {
         return Observable.create((ObservableOnSubscribe<List<JsonFileBean>>) e -> {
             dataList = XELogReadControl.this.readFile();
-            XELogReadControl.this.initState(dataList);
+            initState(dataList);
             e.onNext(dataList);
             e.onComplete();
         }).subscribeOn(Schedulers.io())
@@ -73,26 +75,19 @@ public class XELogReadControl {
         packageNames = new HashSet<>();
         levels = new HashSet<>();
         threads = new HashSet<>();
-//        tag = new Tag("xelog");
+        tag = new Tag("xelog-read");
         authors = new HashSet<>();
+
+        startTime = -1;
+        endTime = -1;
 
         for (int i = 0, length = dataList.size(); i < length; i++) {
             JsonFileBean jsonFileBean = dataList.get(i);
-            long time = jsonFileBean.getTime();
-            if (startTime == 0) {
-                startTime = time;
-            } else if (startTime > time) {
-                startTime = time;
-            }
-            if (endTime == 0) {
-                endTime = time;
-            } else if (endTime < time) {
-                endTime = time;
-            }
+            updateTime(jsonFileBean);
 
             packageNames.add(jsonFileBean.getPackageName());
             levels.add(jsonFileBean.getLevel());
-//            tag.addTag(jsonFileBean.getTag());
+            tag.addTag(jsonFileBean.getTag(), jsonFileBean.isTagSelect());
             authors.add(jsonFileBean.getAuthor());
             threads.add(jsonFileBean.getThread());
         }
@@ -102,10 +97,30 @@ public class XELogReadControl {
         checkedLevels = new HashSet<>(levels);
         checkedThreads = new HashSet<>(threads);
         checkedAuthors = new HashSet<>(authors);
+
+        tag.trim();
+    }
+
+    private void updateTime(JsonFileBean jsonFileBean) {
+        if (jsonFileBean == null) {
+            return;
+        }
+        long time = jsonFileBean.getTime();
+        if (endTime == -1) {
+            endTime = time;
+        } else if (startTime > time) {
+            startTime = time;
+        }
+        if (startTime == -1) {
+            startTime = time;
+        } else if (endTime < time) {
+            endTime = time;
+            checkedTime = endTime;
+        }
     }
 
     public Maybe<Integer> jumpTime(final long time) {
-        return Observable.fromArray(dataList.toArray(new JsonFileBean[dataList.size()]))
+        return Observable.fromIterable(dataList)
                 .reduce((a, b) -> {
                     long temp1 = Math.abs(a.getTime() - time);
                     long temp2 = Math.abs(b.getTime() - time);
@@ -116,22 +131,45 @@ public class XELogReadControl {
                 .observeOn(AndroidSchedulers.mainThread());
     }
 
-    public Single<ArrayList<JsonFileBean>> filtrate(List<String> levels,
-                                                   List<String> threads,
-                                                   List<String> authors) {
+    public Single<List<JsonFileBean>> filtrate(List<String> levels,
+                                               List<String> threads,
+                                               List<String> authors) {
+        startTime = -1;
+        endTime = -1;
+        //view的check改变时tag会被改变
+        List<List<String>> selectPaths = tag.getAllPath();
 
-        ArrayList<JsonFileBean> jsonFileBeen = new ArrayList<>();
-        return Observable.fromArray(dataList.toArray(new JsonFileBean[dataList.size()]))
-                .filter(jsonFileBean -> levels.contains(jsonFileBean.getLevel()))
-                .filter(jsonFileBean -> threads.contains(jsonFileBean.getThread()))
-                .filter(jsonFileBean -> authors.contains(jsonFileBean.getAuthor()))
-                .collectInto(jsonFileBeen, ArrayList::add);
+        for (List<String> path : selectPaths) {
+            //移除统一添加的根节点
+            path.remove(0);
+        }
+
+        return Observable.fromIterable(dataList)
+                .filter(jsonFileBean -> isContain(levels, jsonFileBean.getLevel()))
+                .filter(jsonFileBean -> isContain(threads, jsonFileBean.getThread()))
+                .filter(jsonFileBean -> isContain(authors, jsonFileBean.getAuthor()))
+                .filter(jsonFileBean -> {
+                    for (List<String> path : selectPaths) {
+                        if (path.containsAll(jsonFileBean.getTag())) {
+                            return true;
+                        }
+                    }
+                    return false;
+                })
+                .doOnEach(notification -> updateTime(notification.getValue()))
+                .toList()
+                .subscribeOn(Schedulers.computation())
+                .observeOn(AndroidSchedulers.mainThread());
+    }
+
+    private boolean isContain(List<String> list, String item) {
+        return list.contains(item);
     }
 
 
     private List<JsonFileBean> readFile() {
         StringBuilder content = new StringBuilder("["); //文件内容字符串
-        String xelog = new File(Environment.getExternalStorageDirectory(), "xelog").getPath() + "/log";
+        String xelog = XelogRead.xelogDirPath + "/log";
         content.append(FileUtils.readFile(xelog));
         content.append("]");
 
@@ -139,7 +177,9 @@ public class XELogReadControl {
 
         }.getType());
         //最后一个字符是",",所以解析出的最后一条数据是null,要删除最后一个数据
-        list.remove(list.size() - 1);
+        if (list.size() >= 1) {
+            list.remove(list.size() - 1);
+        }
         return list;
     }
 

@@ -4,7 +4,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
 
-import com.ldy.xelogsample1.R;
+import com.ldy.xelogsample.R;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -17,7 +17,7 @@ public class MainActivity extends AppCompatActivity {
         netLog = new NetLog();
     }
 
-    public void click(View view) {
+    public void netLog(View view) {
         netLog.v("{\n" +
                 "      \"request\": {\n" +
                 "        \"jsonrpc\": \"2.0\",\n" +
@@ -50,5 +50,9 @@ public class MainActivity extends AppCompatActivity {
                 "        }\n" +
                 "      }\n" +
                 "    }");
+    }
+
+    public void errorLog(View view) {
+        throw new NullPointerException("实验");
     }
 }

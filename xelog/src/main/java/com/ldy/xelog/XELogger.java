@@ -34,8 +34,8 @@ public class XELogger {
         println(Log.VERBOSE, plusTag, message);
     }
 
-    public void e(List<String> plusTag, Throwable throwable) {
-        println(Log.ERROR, plusTag, throwable);
+    public void e(List<String> plusTag, String s) {
+        println(Log.ERROR, plusTag, s);
     }
 
     private void println(int level, List<String> plusTag, Object message) {
@@ -54,7 +54,7 @@ public class XELogger {
 
         if (config.isPrintJsonFile()) {
             if (jsonFileLogger == null) {
-                jsonFilePrinter = new JsonFilePrinter.Builder(config.getFileDirPath())
+                jsonFilePrinter = new JsonFilePrinter.Builder(XELog.getFileDir())
                         .logFlattener(new JsonFileFlattener(config, stackTrace, thread, getLogTag(plusTag)))
                         .build();
                 jsonFileLogger = XLog.tag("")

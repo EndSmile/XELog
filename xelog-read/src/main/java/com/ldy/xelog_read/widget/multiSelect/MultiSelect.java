@@ -33,9 +33,6 @@ public class MultiSelect extends LinearLayout {
         tvTitle.setText(title);
         addView(tvTitle);
         for (String s : content) {
-            if (TextUtils.isEmpty(s)) {
-                continue;
-            }
             CheckBox checkBox = new CheckBox(getContext());
             checkBox.setText(s);
             checkBox.setChecked(checkedContent.contains(s));

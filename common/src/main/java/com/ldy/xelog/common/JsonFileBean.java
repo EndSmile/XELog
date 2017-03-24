@@ -1,7 +1,8 @@
-package com.ldy.xelog_read.bean;
+package com.ldy.xelog.common;
 
 import android.os.Parcel;
 import android.os.Parcelable;
+import android.support.annotation.NonNull;
 
 import java.util.List;
 
@@ -22,6 +23,7 @@ public class JsonFileBean implements Parcelable {
      * remarks : 这是一个登录的网络操作
      * summary : method:login
      * content :
+     * tagSelect:如果为null则默认为选中
      */
     private long time;
     private String packageName;
@@ -33,6 +35,7 @@ public class JsonFileBean implements Parcelable {
     private String summary;
     private String content;
     private List<String> tag;
+    private Boolean tagSelect;
 
     public long getTime() {
         return time;
@@ -42,7 +45,11 @@ public class JsonFileBean implements Parcelable {
         this.time = time;
     }
 
+    @NonNull
     public String getPackageName() {
+        if (packageName == null) {
+            return "";
+        }
         return packageName;
     }
 
@@ -50,7 +57,11 @@ public class JsonFileBean implements Parcelable {
         this.packageName = packageX;
     }
 
+    @NonNull
     public String getLevel() {
+        if (level == null) {
+            return "";
+        }
         return level;
     }
 
@@ -58,7 +69,11 @@ public class JsonFileBean implements Parcelable {
         this.level = level;
     }
 
+    @NonNull
     public String getThread() {
+        if (thread == null) {
+            return "";
+        }
         return thread;
     }
 
@@ -74,7 +89,11 @@ public class JsonFileBean implements Parcelable {
         this.stackTrace = stackTrace;
     }
 
+    @NonNull
     public String getAuthor() {
+        if (author == null) {
+            return "";
+        }
         return author;
     }
 
@@ -114,6 +133,17 @@ public class JsonFileBean implements Parcelable {
         this.tag = tag;
     }
 
+    public boolean isTagSelect() {
+        if (tagSelect==null){
+            return true;
+        }
+        return tagSelect;
+    }
+
+    public void setTagSelect(Boolean tagSelect) {
+        this.tagSelect = tagSelect;
+    }
+
     public String getLogStr() {
         StringBuilder builder = new StringBuilder();
         List<String> tag = getTag();
@@ -126,32 +156,16 @@ public class JsonFileBean implements Parcelable {
         return builder.toString();
     }
 
-    public String getStackTraceStr(){
-        if (stackTrace==null){
+    public String getStackTraceStr() {
+        if (stackTrace == null) {
             return "";
         }
         StringBuilder stringBuilder = new StringBuilder();
-        for (String s:stackTrace){
+        for (String s : stackTrace) {
             stringBuilder.append(s);
             stringBuilder.append("\n");
         }
         return stringBuilder.toString();
-    }
-
-    @Override
-    public String toString() {
-        return "JsonFileBean{" +
-                "time=" + time +
-                ", packageName='" + packageName + '\'' +
-                ", level='" + level + '\'' +
-                ", thread='" + thread + '\'' +
-                ", stackTrace=" + stackTrace +
-                ", author='" + author + '\'' +
-                ", remarks='" + remarks + '\'' +
-                ", summary='" + summary + '\'' +
-                ", content='" + content + '\'' +
-                ", tag=" + tag +
-                '}';
     }
 
 
@@ -172,6 +186,7 @@ public class JsonFileBean implements Parcelable {
         dest.writeString(this.summary);
         dest.writeString(this.content);
         dest.writeStringList(this.tag);
+        dest.writeValue(this.tagSelect);
     }
 
     public JsonFileBean() {
@@ -188,6 +203,7 @@ public class JsonFileBean implements Parcelable {
         this.summary = in.readString();
         this.content = in.readString();
         this.tag = in.createStringArrayList();
+        this.tagSelect = (Boolean) in.readValue(Boolean.class.getClassLoader());
     }
 
     public static final Parcelable.Creator<JsonFileBean> CREATOR = new Parcelable.Creator<JsonFileBean>() {

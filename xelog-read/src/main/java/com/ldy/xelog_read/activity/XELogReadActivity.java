@@ -3,27 +3,23 @@ package com.ldy.xelog_read.activity;
 import android.support.annotation.Nullable;
 import android.os.Bundle;
 import android.util.Log;
-import android.view.View;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.ListView;
 import android.widget.SeekBar;
 import android.widget.TextView;
 
+import com.jakewharton.rxbinding2.widget.RxSeekBar;
 import com.ldy.xelog_read.R;
-import com.ldy.xelog_read.bean.JsonFileBean;
 import com.ldy.xelog_read.control.XELogReadControl;
 import com.ldy.xelog_read.widget.LogDetailItem;
 import com.ldy.xelog_read.widget.dateSelect.MsSelect;
 import com.ldy.xelog_read.widget.dropGroup.DropGroup;
 import com.ldy.xelog_read.widget.multiSelect.MultiSelect;
+import com.ldy.xelog_read.widget.tagtree.TagTree;
 
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Date;
-
-import io.reactivex.annotations.NonNull;
-import io.reactivex.functions.Consumer;
 
 public class XELogReadActivity extends XELogReadBaseActivity {
 
@@ -47,6 +43,7 @@ public class XELogReadActivity extends XELogReadBaseActivity {
     private MultiSelect multiSelThread;
     private MultiSelect multiSelAuthor;
     private Button btnFiletrate;
+    private TagTree tagTree;
 
 
     @Override
@@ -69,16 +66,21 @@ public class XELogReadActivity extends XELogReadBaseActivity {
                     }
                     initTimeFiltrate();
                     initMultiSelFiltrate();
+                    initTagTree();
                 });
 
         lvLog.setOnItemClickListener((parent, view, position, id) ->
                 LogDetailActivity.navigation(XELogReadActivity.this, adapter.getJsonFileBean(position)));
     }
 
+    private void initTagTree() {
+        tagTree.setTag(xeLogReadControl.getTag());
+    }
+
     private void initMultiSelFiltrate() {
-        multiSelLevel.setContent("level:",xeLogReadControl.getLevels(),xeLogReadControl.getCheckedLevels());
-        multiSelAuthor.setContent("author:",xeLogReadControl.getAuthors(),xeLogReadControl.getCheckedAuthors());
-        multiSelThread.setContent("thread:",xeLogReadControl.getThreads(),xeLogReadControl.getCheckedThreads());
+        multiSelLevel.setContent("level:", xeLogReadControl.getLevels(), xeLogReadControl.getCheckedLevels());
+        multiSelAuthor.setContent("author:", xeLogReadControl.getAuthors(), xeLogReadControl.getCheckedAuthors());
+        multiSelThread.setContent("thread:", xeLogReadControl.getThreads(), xeLogReadControl.getCheckedThreads());
     }
 
     private void initTimeFiltrate() {
@@ -91,6 +93,7 @@ public class XELogReadActivity extends XELogReadBaseActivity {
         tvStartTime.setText(simpleDateFormat.format(endTime));
         tvEndTime.setText(simpleDateFormat.format(startTime));
         msSelect.setTime(xeLogReadControl.getCheckedTime());
+        seekBarTime.setProgress(0);
     }
 
     private void bindView() {
@@ -106,27 +109,16 @@ public class XELogReadActivity extends XELogReadBaseActivity {
         multiSelAuthor = (MultiSelect) findViewById(R.id.multiSel_author);
         multiSelThread = (MultiSelect) findViewById(R.id.multiSel_thread);
         btnFiletrate = (Button) findViewById(R.id.btn_xelog_read_filtrate_certain);
+        tagTree = (TagTree) findViewById(R.id.tagTree_xelog_read);
 
-        seekBarTime.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
-            @Override
-            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-                long time = endTime - unitTime * progress;
-                if (time < startTime) {
-                    time = startTime;
-                }
-                msSelect.setTime(time);
+        RxSeekBar.changes(seekBarTime).subscribe((progress) -> {
+            long time = endTime - unitTime * progress;
+            if (time < startTime) {
+                time = startTime;
             }
-
-            @Override
-            public void onStartTrackingTouch(SeekBar seekBar) {
-
-            }
-
-            @Override
-            public void onStopTrackingTouch(SeekBar seekBar) {
-
-            }
+            msSelect.setTime(time);
         });
+
         btnTimeCertain.setOnClickListener(v -> {
             long time = msSelect.getTime();
             final SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
@@ -139,13 +131,19 @@ public class XELogReadActivity extends XELogReadBaseActivity {
                     });
         });
 
-        btnFiletrate.setOnClickListener((view)->{
-            xeLogReadControl.filtrate(multiSelLevel.getSelect(),multiSelThread.getSelect(),multiSelAuthor.getSelect())
-                    .subscribe(jsonFileBeen -> adapter.setData(jsonFileBeen));
-        });
+        btnFiletrate.setOnClickListener((view) -> filtrate());
 
+        tagTree.setTagChangeListener(this::filtrate);
 
         dropGroup.setCheckBox(chkFiltrate);
+    }
+
+    private void filtrate() {
+        xeLogReadControl.filtrate(multiSelLevel.getSelect(), multiSelThread.getSelect(), multiSelAuthor.getSelect())
+                .subscribe(jsonFileBeen -> {
+                    adapter.setData(jsonFileBeen);
+                    initTimeFiltrate();
+                });
     }
 
     @Override

@@ -27,7 +27,7 @@
                 android:drawableRight="@drawable/sel_ic_white_filtrate"
                 android:paddingLeft="8dp"
                 android:paddingRight="8dp"
-                android:text="筛选"
+                android:text="time"
                 android:textColor="@color/xelog_read_base_white_100"
                 android:textSize="16dp" />
         </FrameLayout>
@@ -107,6 +107,7 @@
         android:layout_height="match_parent"
         android:layout_gravity="end"
         android:background="#ffffff"
+        android:clickable="true"
         android:orientation="vertical"
         android:padding="16dp">
 
@@ -135,5 +136,26 @@
             android:background="@drawable/sel_btn_blue"
             android:text="确定"
             android:textSize="16sp" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="300dp"
+        android:background="#ffffff"
+        android:clickable="true"
+        android:layout_height="match_parent"
+        android:layout_gravity="start">
+        <ScrollView
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent">
+            <HorizontalScrollView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+                <com.ldy.xelog_read.widget.tagtree.TagTree
+                    android:id="@+id/tagTree_xelog_read"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"/>
+            </HorizontalScrollView>
+        </ScrollView>
+
     </LinearLayout>
 </android.support.v4.widget.DrawerLayout>

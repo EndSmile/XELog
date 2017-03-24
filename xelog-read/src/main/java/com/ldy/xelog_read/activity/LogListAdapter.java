@@ -1,17 +1,19 @@
 package com.ldy.xelog_read.activity;
 
 import android.content.Context;
+import android.graphics.Color;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.TextView;
 
+import com.ldy.xelog.common.JsonFileBean;
 import com.ldy.xelog_read.R;
-import com.ldy.xelog_read.bean.JsonFileBean;
 import com.ldy.xelog_read.widget.TimeShowView;
 
 import java.util.List;
+import java.util.Objects;
 
 /**
  * Created by ldy on 2017/3/7.
@@ -60,6 +62,14 @@ class LogListAdapter extends BaseAdapter {
         JsonFileBean jsonFileBean = getJsonFileBean(position);
         viewHolder.tvTime.setDate((jsonFileBean.getTime()));
         viewHolder.tvSummary.setText(jsonFileBean.getSummary());
+        if (jsonFileBean.getLevel().equals("ERROR")){
+            viewHolder.tvTime.setTextColor(context.getResources().getColor(R.color.xelog_read_error));
+            viewHolder.tvSummary.setTextColor(context.getResources().getColor(R.color.xelog_read_error));
+        }else {
+            viewHolder.tvTime.setTextColor(context.getResources().getColor(R.color.xelog_read_deep_grey));
+            viewHolder.tvSummary.setTextColor(context.getResources().getColor(R.color.xelog_read_base_black_100));
+        }
+
         return convertView;
     }
 
