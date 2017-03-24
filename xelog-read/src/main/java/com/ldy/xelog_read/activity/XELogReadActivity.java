@@ -2,9 +2,12 @@ package com.ldy.xelog_read.activity;
 
 import android.support.annotation.Nullable;
 import android.os.Bundle;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.util.Log;
 import android.widget.Button;
 import android.widget.CheckBox;
+import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.SeekBar;
 import android.widget.TextView;
@@ -44,6 +47,7 @@ public class XELogReadActivity extends XELogReadBaseActivity {
     private MultiSelect multiSelAuthor;
     private Button btnFiletrate;
     private TagTree tagTree;
+    private EditText edtStringFiltrate;
 
 
     @Override
@@ -67,6 +71,7 @@ public class XELogReadActivity extends XELogReadBaseActivity {
                     initTimeFiltrate();
                     initMultiSelFiltrate();
                     initTagTree();
+                    filtrate();
                 });
 
         lvLog.setOnItemClickListener((parent, view, position, id) ->
@@ -110,6 +115,7 @@ public class XELogReadActivity extends XELogReadBaseActivity {
         multiSelThread = (MultiSelect) findViewById(R.id.multiSel_thread);
         btnFiletrate = (Button) findViewById(R.id.btn_xelog_read_filtrate_certain);
         tagTree = (TagTree) findViewById(R.id.tagTree_xelog_read);
+        edtStringFiltrate = (EditText) findViewById(R.id.edt_xelog_read_string_filtrate);
 
         RxSeekBar.changes(seekBarTime).subscribe((progress) -> {
             long time = endTime - unitTime * progress;
@@ -132,6 +138,23 @@ public class XELogReadActivity extends XELogReadBaseActivity {
         });
 
         btnFiletrate.setOnClickListener((view) -> filtrate());
+        edtStringFiltrate.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+                filtrate();
+            }
+        });
+
 
         tagTree.setTagChangeListener(this::filtrate);
 
@@ -139,7 +162,10 @@ public class XELogReadActivity extends XELogReadBaseActivity {
     }
 
     private void filtrate() {
-        xeLogReadControl.filtrate(multiSelLevel.getSelect(), multiSelThread.getSelect(), multiSelAuthor.getSelect())
+        xeLogReadControl.filtrate(multiSelLevel.getSelect(),
+                multiSelThread.getSelect(),
+                multiSelAuthor.getSelect(),
+                edtStringFiltrate.getText().toString())
                 .subscribe(jsonFileBeen -> {
                     adapter.setData(jsonFileBeen);
                     initTimeFiltrate();

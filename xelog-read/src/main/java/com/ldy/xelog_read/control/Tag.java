@@ -105,7 +105,6 @@ public class Tag {
     public void check(boolean check) {
         checkChildren(check);
         Tag root = getRoot();
-        Log.d("Tag", root.text);
         root.trim();
     }
 

@@ -133,7 +133,8 @@ public class XELogReadControl {
 
     public Single<List<JsonFileBean>> filtrate(List<String> levels,
                                                List<String> threads,
-                                               List<String> authors) {
+                                               List<String> authors,
+                                               String regular) {
         startTime = -1;
         endTime = -1;
         //view的check改变时tag会被改变
@@ -156,6 +157,7 @@ public class XELogReadControl {
                     }
                     return false;
                 })
+                .filter(jsonFileBean -> jsonFileBean.getContent().contains(regular))
                 .doOnEach(notification -> updateTime(notification.getValue()))
                 .toList()
                 .subscribeOn(Schedulers.computation())
