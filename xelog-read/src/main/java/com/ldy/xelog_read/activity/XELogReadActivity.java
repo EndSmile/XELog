@@ -12,7 +12,6 @@ import android.widget.ListView;
 import android.widget.SeekBar;
 import android.widget.TextView;
 
-import com.jakewharton.rxbinding2.widget.RxSeekBar;
 import com.ldy.xelog.common.JsonFileBean;
 import com.ldy.xelog_read.R;
 import com.ldy.xelog_read.control.XELogReadControl;
@@ -139,14 +138,26 @@ public class XELogReadActivity extends XELogReadBaseActivity {
         tagTree = (TagTree) findViewById(R.id.tagTree_xelog_read);
         edtStringFiltrate = (EditText) findViewById(R.id.edt_xelog_read_string_filtrate);
 
-        RxSeekBar.changes(seekBarTime).subscribe((progress) -> {
-            long time = endTime - unitTime * progress;
-            if (time < startTime) {
-                time = startTime;
+        seekBarTime.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+            @Override
+            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+                long time = endTime - unitTime * progress;
+                if (time < startTime) {
+                    time = startTime;
+                }
+                msSelect.setTime(time);
             }
-            msSelect.setTime(time);
-        });
 
+            @Override
+            public void onStartTrackingTouch(SeekBar seekBar) {
+
+            }
+
+            @Override
+            public void onStopTrackingTouch(SeekBar seekBar) {
+
+            }
+        });
         btnTimeCertain.setOnClickListener(v -> {
             long time = msSelect.getTime();
             final SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
