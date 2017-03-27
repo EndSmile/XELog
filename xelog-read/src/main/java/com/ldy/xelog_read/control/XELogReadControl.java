@@ -1,9 +1,6 @@
 package com.ldy.xelog_read.control;
 
 import android.content.Context;
-import android.os.Environment;
-import android.text.TextUtils;
-import android.util.Log;
 
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
@@ -11,25 +8,13 @@ import com.ldy.xelog.common.JsonFileBean;
 import com.ldy.xelog_read.XelogRead;
 import com.ldy.xelog_read.utils.FileUtils;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
-import io.reactivex.Maybe;
-import io.reactivex.Observable;
-import io.reactivex.ObservableOnSubscribe;
-import io.reactivex.Scheduler;
-import io.reactivex.Single;
-import io.reactivex.android.schedulers.AndroidSchedulers;
-import io.reactivex.annotations.NonNull;
-import io.reactivex.functions.BiConsumer;
-import io.reactivex.schedulers.Schedulers;
 
 /**
  * Created by ldy on 2017/3/6.
@@ -51,19 +36,21 @@ public class XELogReadControl {
     private Set<String> checkedThreads;
 
     private List<JsonFileBean> dataList;
+    private ExecutorService executor;
+    private DataLoadListener dataLoadListener;
 
     public XELogReadControl(Context context) {
         this.context = context;
     }
 
-    public Observable<List<JsonFileBean>> init() {
-        return Observable.create((ObservableOnSubscribe<List<JsonFileBean>>) e -> {
+    public void init(DataLoadListener dataLoadListener) {
+        this.dataLoadListener = dataLoadListener;
+        executor = Executors.newSingleThreadExecutor();
+        executor.execute(() -> {
             dataList = XELogReadControl.this.readFile();
             initState(dataList);
-            e.onNext(dataList);
-            e.onComplete();
-        }).subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread());
+            dataLoadListener.loadFirst(dataList);
+        });
 
     }
 
@@ -119,55 +106,77 @@ public class XELogReadControl {
         }
     }
 
-    public Maybe<Integer> jumpTime(final long time) {
-        return Observable.fromIterable(dataList)
-                .reduce((a, b) -> {
-                    long temp1 = Math.abs(a.getTime() - time);
-                    long temp2 = Math.abs(b.getTime() - time);
-                    return temp1 < temp2 ? a : b;
-                })
-                .map(a -> dataList.indexOf(a))
-                .subscribeOn(Schedulers.computation())
-                .observeOn(AndroidSchedulers.mainThread());
+    public void jump2Time(long time) {
+        executor.execute(() -> {
+            long dif = Math.abs(dataList.get(0).getTime() - time);
+            int position = 0;
+            for (int i = 0, length = dataList.size(); i < length; i++) {
+                JsonFileBean jsonFileBean = dataList.get(i);
+                long temp = Math.abs(jsonFileBean.getTime() - time);
+                if (temp < dif) {
+                    dif = temp;
+                    position = i;
+                }
+            }
+            checkedTime = dataList.get(position).getTime();
+            dataLoadListener.jumpPosition(position);
+        });
     }
 
-    public Single<List<JsonFileBean>> filtrate(List<String> levels,
-                                               List<String> threads,
-                                               List<String> authors,
-                                               String regular) {
+    public void filtrate(List<String> levels,
+                         List<String> threads,
+                         List<String> authors,
+                         String regular) {
         startTime = -1;
         endTime = -1;
-        //view的check改变时tag会被改变
-        List<List<String>> selectPaths = tag.getAllPath();
 
-        for (List<String> path : selectPaths) {
-            //移除统一添加的根节点
-            path.remove(0);
-        }
+        executor.execute(() -> {
+            //view的check改变时tag会被改变
+            List<List<String>> selectPaths = tag.getAllPath();
 
-        return Observable.fromIterable(dataList)
-                .filter(jsonFileBean -> isContain(levels, jsonFileBean.getLevel()))
-                .filter(jsonFileBean -> isContain(threads, jsonFileBean.getThread()))
-                .filter(jsonFileBean -> isContain(authors, jsonFileBean.getAuthor()))
-                .filter(jsonFileBean -> {
-                    for (List<String> path : selectPaths) {
-                        if (path.containsAll(jsonFileBean.getTag())) {
-                            return true;
-                        }
-                    }
-                    return false;
-                })
-                .filter(jsonFileBean -> jsonFileBean.getContent().contains(regular))
-                .doOnEach(notification -> updateTime(notification.getValue()))
-                .toList()
-                .subscribeOn(Schedulers.computation())
-                .observeOn(AndroidSchedulers.mainThread());
+            for (List<String> path : selectPaths) {
+                //移除统一添加的根节点
+                path.remove(0);
+            }
+
+            List<JsonFileBean> result = new ArrayList<>();
+            for (JsonFileBean jsonFileBean : dataList) {
+                if (!isContain(levels, jsonFileBean.getLevel())) {
+                    continue;
+                }
+                if (!isContain(threads, jsonFileBean.getThread())) {
+                    continue;
+                }
+                if (!isContain(authors, jsonFileBean.getAuthor())) {
+                    continue;
+                }
+                if (!isContainPath(selectPaths, jsonFileBean.getTag())) {
+                    continue;
+                }
+                if (!jsonFileBean.getContent().contains(regular)) {
+                    continue;
+                }
+                updateTime(jsonFileBean);
+                result.add(jsonFileBean);
+            }
+            dataLoadListener.loadFinish(result);
+        });
+
+
     }
 
     private boolean isContain(List<String> list, String item) {
         return list.contains(item);
     }
 
+    private boolean isContainPath(List<List<String>> selectPaths, List<String> tag) {
+        for (List<String> path : selectPaths) {
+            if (path.containsAll(tag)) {
+                return true;
+            }
+        }
+        return false;
+    }
 
     private List<JsonFileBean> readFile() {
         StringBuilder content = new StringBuilder("["); //文件内容字符串
@@ -233,4 +242,11 @@ public class XELogReadControl {
         return checkedThreads;
     }
 
+    public interface DataLoadListener {
+        void loadFirst(List<JsonFileBean> jsonFileBeen);
+
+        void loadFinish(List<JsonFileBean> jsonFileBeen);
+
+        void jumpPosition(int position);
+    }
 }

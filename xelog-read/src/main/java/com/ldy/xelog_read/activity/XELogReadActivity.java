@@ -13,6 +13,7 @@ import android.widget.SeekBar;
 import android.widget.TextView;
 
 import com.jakewharton.rxbinding2.widget.RxSeekBar;
+import com.ldy.xelog.common.JsonFileBean;
 import com.ldy.xelog_read.R;
 import com.ldy.xelog_read.control.XELogReadControl;
 import com.ldy.xelog_read.widget.LogDetailItem;
@@ -23,6 +24,7 @@ import com.ldy.xelog_read.widget.tagtree.TagTree;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.List;
 
 public class XELogReadActivity extends XELogReadBaseActivity {
 
@@ -59,9 +61,10 @@ public class XELogReadActivity extends XELogReadBaseActivity {
     protected void initView(@Nullable Bundle savedInstanceState) {
         bindView();
         xeLogReadControl = new XELogReadControl(this);
-        xeLogReadControl.init()
-                .subscribe(jsonFileBeen -> {
-                    Log.d("XELogReadActivity", "loadfinish");
+        xeLogReadControl.init(new XELogReadControl.DataLoadListener() {
+            @Override
+            public void loadFirst(List<JsonFileBean> jsonFileBeen) {
+                runOnUiThread(() -> {
                     if (adapter == null) {
                         adapter = new LogListAdapter(XELogReadActivity.this, jsonFileBeen);
                         lvLog.setAdapter(adapter);
@@ -73,6 +76,25 @@ public class XELogReadActivity extends XELogReadBaseActivity {
                     initTagTree();
                     filtrate();
                 });
+            }
+
+            @Override
+            public void loadFinish(List<JsonFileBean> jsonFileBeen) {
+                runOnUiThread(() -> {
+                    adapter.setData(jsonFileBeen);
+                    initTimeFiltrate();
+                });
+            }
+
+            @Override
+            public void jumpPosition(int position) {
+                runOnUiThread(()->{
+                    msSelect.setTime(xeLogReadControl.getCheckedTime());
+                    lvLog.setSelection(adapter.getRealPosition(position));
+                    dropGroup.fold(true);
+                });
+            }
+        });
 
         lvLog.setOnItemClickListener((parent, view, position, id) ->
                 LogDetailActivity.navigation(XELogReadActivity.this, adapter.getJsonFileBean(position)));
@@ -129,12 +151,7 @@ public class XELogReadActivity extends XELogReadBaseActivity {
             long time = msSelect.getTime();
             final SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
             Log.d("XELogReadActivity", simpleDateFormat.format(new Date(time)));
-            xeLogReadControl.jumpTime(time)
-                    .subscribe(position -> {
-                        msSelect.setTime(xeLogReadControl.getCheckedTime());
-                        lvLog.setSelection(adapter.getRealPosition(position));
-                        dropGroup.fold(true);
-                    });
+            xeLogReadControl.jump2Time(time);
         });
 
         btnFiletrate.setOnClickListener((view) -> filtrate());
@@ -165,12 +182,9 @@ public class XELogReadActivity extends XELogReadBaseActivity {
         xeLogReadControl.filtrate(multiSelLevel.getSelect(),
                 multiSelThread.getSelect(),
                 multiSelAuthor.getSelect(),
-                edtStringFiltrate.getText().toString())
-                .subscribe(jsonFileBeen -> {
-                    adapter.setData(jsonFileBeen);
-                    initTimeFiltrate();
-                });
+                edtStringFiltrate.getText().toString());
     }
+
 
     @Override
     protected int getToolbarType() {
