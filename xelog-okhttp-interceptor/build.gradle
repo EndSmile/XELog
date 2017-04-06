@@ -1,5 +1,5 @@
 apply plugin: 'com.android.library'
-
+//apply plugin: 'bintray-release'
 android {
     compileSdkVersion 25
     buildToolsVersion "25.0.2"
@@ -23,6 +23,14 @@ android {
         sourceCompatibility JavaVersion.VERSION_1_6
         targetCompatibility JavaVersion.VERSION_1_6
     }
+    lintOptions {
+        checkReleaseBuilds false
+        // Or, if you prefer, you can continue to check for errors in release builds,
+        // but continue the build even when errors are found:
+        abortOnError false
+    }
+
+
 }
 
 dependencies {
@@ -31,7 +39,21 @@ dependencies {
         exclude group: 'com.android.support', module: 'support-annotations'
     })
     compile 'com.squareup.okhttp3:okhttp:3.6.0'
-    compile 'com.android.support:appcompat-v7:25.0.0'
     compile project(':xelog')
     testCompile 'junit:junit:4.12'
 }
+
+//publish {
+//    artifactId = 'xelog-okhttp-interceptor'
+//    userOrg = rootProject.userOrg
+//    groupId = rootProject.groupId
+//    uploadName = rootProject.uploadName
+//    publishVersion = rootProject.publishVersion
+//    desc = rootProject.description
+//    website = rootProject.website
+//    licences = rootProject.licences
+//}
+
+ext.projectArtifactId   = "xelog-okhttp-interceptor"
+
+apply from: rootProject.file('gradle/androidBintrayUpload.gradle')

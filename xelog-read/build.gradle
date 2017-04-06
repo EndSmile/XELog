@@ -1,5 +1,6 @@
 apply plugin: 'com.android.library'
 apply plugin: 'me.tatarka.retrolambda'
+//apply plugin: 'bintray-release'
 android {
     compileSdkVersion 25
     buildToolsVersion "25.0.2"
@@ -29,6 +30,15 @@ android {
         javaVersion JavaVersion.VERSION_1_6
     }
 
+    lintOptions {
+        checkReleaseBuilds false
+        // Or, if you prefer, you can continue to check for errors in release builds,
+        // but continue the build even when errors are found:
+        abortOnError false
+    }
+
+
+
     resourcePrefix 'xelog_read_'
 }
 
@@ -41,5 +51,18 @@ dependencies {
     compile "com.google.code.gson:gson:2.7"
 
     testCompile 'junit:junit:4.12'
-    compile project(':common')
+    compile project(':xelog-common')
 }
+//publish {
+//    artifactId = 'xelog-read'
+//    userOrg = rootProject.userOrg
+//    groupId = rootProject.groupId
+//    uploadName = rootProject.uploadName
+//    publishVersion = rootProject.publishVersion
+//    desc = rootProject.description
+//    website = rootProject.website
+//    licences = rootProject.licences
+//}
+ext.projectArtifactId   = "xelog-read"
+
+apply from: rootProject.file('gradle/androidBintrayUpload.gradle')

@@ -2,7 +2,6 @@ package com.ldy.xelog.common;
 
 import android.os.Parcel;
 import android.os.Parcelable;
-import android.support.annotation.NonNull;
 
 import java.util.List;
 
@@ -45,7 +44,6 @@ public class JsonFileBean implements Parcelable {
         this.time = time;
     }
 
-    @NonNull
     public String getPackageName() {
         if (packageName == null) {
             return "";
@@ -57,7 +55,6 @@ public class JsonFileBean implements Parcelable {
         this.packageName = packageX;
     }
 
-    @NonNull
     public String getLevel() {
         if (level == null) {
             return "";
@@ -69,7 +66,6 @@ public class JsonFileBean implements Parcelable {
         this.level = level;
     }
 
-    @NonNull
     public String getThread() {
         if (thread == null) {
             return "";
@@ -89,7 +85,6 @@ public class JsonFileBean implements Parcelable {
         this.stackTrace = stackTrace;
     }
 
-    @NonNull
     public String getAuthor() {
         if (author == null) {
             return "";

@@ -7,17 +7,39 @@ buildscript {
     dependencies {
         classpath 'com.android.tools.build:gradle:2.3.0'
         classpath 'me.tatarka:gradle-retrolambda:3.6.0'
-
+        classpath 'com.jfrog.bintray.gradle:gradle-bintray-plugin:1.5'
+        classpath 'com.github.dcendents:android-maven-gradle-plugin:1.4.1'
         // NOTE: Do not place your application dependencies here; they belong
         // in the individual module build.gradle files
     }
 }
 
 allprojects {
+    tasks.withType(Javadoc) {
+        options{
+            encoding "UTF-8"
+            charSet 'UTF-8'
+            links "http://docs.oracle.com/javase/7/docs/api"
+        }
+    }
     repositories {
         jcenter()
+        maven {
+            url 'https://dl.bintray.com/endsmile1993/maven/'
+        }
     }
 }
+
+//添加
+//ext {
+//    userOrg = 'endsmile1993'
+//    groupId = 'com.ldy'
+//    uploadName = 'XELog'
+//    publishVersion = '0.1.0'
+//    desc = 'Enhanced xlog'
+//    website = 'https://github.com/EndSmile/XELog'
+//    licences = ['Apache-2.0']
+//}
 
 task clean(type: Delete) {
     delete rootProject.buildDir
