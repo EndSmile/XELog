@@ -59,10 +59,10 @@ public class XELogConfig {
     }
 
     public String getPackageName() {
-        if (context != null) {
-            return context.getPackageName();
-        }
-        return "";
+//        if (context != null) {
+//            return context.getPackageName();
+//        }
+        return null;
     }
 
     public List<String> getBaseTag() {

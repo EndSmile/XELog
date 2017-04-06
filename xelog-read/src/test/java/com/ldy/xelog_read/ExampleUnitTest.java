@@ -7,8 +7,6 @@ import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 
-import io.reactivex.Observable;
-
 import static org.junit.Assert.*;
 
 /**

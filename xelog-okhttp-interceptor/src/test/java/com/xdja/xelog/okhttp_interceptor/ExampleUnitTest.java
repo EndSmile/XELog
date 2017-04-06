@@ -1,4 +1,4 @@
-package com.ldy.xelogsample;
+package com.xdja.xelog.okhttp_interceptor;
 
 import org.junit.Test;
 
@@ -14,5 +14,4 @@ public class ExampleUnitTest {
     public void addition_isCorrect() throws Exception {
         assertEquals(4, 2 + 2);
     }
-
 }

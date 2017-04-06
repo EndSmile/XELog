@@ -12,6 +12,7 @@ public class CrashCatchLog extends AbstractAutoLog implements Thread.UncaughtExc
     private final Thread.UncaughtExceptionHandler handler;
     private Thread.UncaughtExceptionHandler defaultHandler;
     private boolean isActive;
+    private LogConfiguration logConfiguration;
 
     public CrashCatchLog(String author) {
         this(author, null);
@@ -35,7 +36,10 @@ public class CrashCatchLog extends AbstractAutoLog implements Thread.UncaughtExc
 
     @Override
     public LogConfiguration getXLogConfiguration() {
-        return new LogConfiguration.Builder().build();
+        if (logConfiguration!=null){
+            logConfiguration = new LogConfiguration.Builder().build();
+        }
+        return logConfiguration;
     }
 
     @Override

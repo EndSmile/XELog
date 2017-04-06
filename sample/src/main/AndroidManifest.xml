@@ -3,6 +3,7 @@
     package="com.ldy.xelogsample">
 
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.INTERNET" />
 
     <application
         android:name="com.ldy.xelogsample.MyApplication"

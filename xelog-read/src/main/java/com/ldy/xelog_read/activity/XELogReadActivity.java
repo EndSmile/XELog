@@ -160,8 +160,6 @@ public class XELogReadActivity extends XELogReadBaseActivity {
         });
         btnTimeCertain.setOnClickListener(v -> {
             long time = msSelect.getTime();
-            final SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
-            Log.d("XELogReadActivity", simpleDateFormat.format(new Date(time)));
             xeLogReadControl.jump2Time(time);
         });
 
