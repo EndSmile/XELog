@@ -5,6 +5,7 @@ import android.os.Build;
 import android.os.Environment;
 
 import com.elvishew.xlog.XLog;
+import com.ldy.xelog.common.XELogCommon;
 import com.ldy.xelog.config.auto.IAutoLog;
 
 import java.io.File;
@@ -16,7 +17,6 @@ public class XELog {
     public static Context context;
     static InitParams initParams;
     private static String dirPath;
-
 
     public static void init(Context context) {
         init(context, null);
@@ -35,6 +35,7 @@ public class XELog {
         }
         XLog.init();
         XELog.initParams = initParams;
+        XELogCommon.xelogDirPath = getFileDir();
     }
 
     public static void activateAutoLog(IAutoLog... autoLogs) {

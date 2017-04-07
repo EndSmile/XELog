@@ -5,7 +5,7 @@ import android.content.Context;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import com.ldy.xelog.common.JsonFileBean;
-import com.ldy.xelog_read.XelogRead;
+import com.ldy.xelog_read.XELogRead;
 import com.ldy.xelog_read.utils.FileUtils;
 
 import java.util.ArrayList;
@@ -180,7 +180,7 @@ public class XELogReadControl {
 
     private List<JsonFileBean> readFile() {
         StringBuilder content = new StringBuilder("["); //文件内容字符串
-        String xelog = XelogRead.xelogDirPath + "/log";
+        String xelog = XELogRead.getXelogDirPath() + "/log";
         content.append(FileUtils.readFile(xelog));
         content.append("]");
 

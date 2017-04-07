@@ -11,11 +11,11 @@
 ### 使用
 ```
 //日志打印库
-compile 'com.ldy:xelog:0.2.0'
+compile 'com.ldy:xelog:0.2.1'
 //日志读取库
-compile 'com.ldy:xelog-read:0.2.0'
+compile 'com.ldy:xelog-read:0.2.1'
 //okhttp日志拦截器，使用xelog实现
-compile 'com.ldy:xelog-okhttp-interceptor:0.2.0'
+compile 'com.ldy:xelog-okhttp-interceptor:0.2.1'
 ```
 
 ### todoList
