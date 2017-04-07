@@ -41,11 +41,11 @@ public class XELogReadControl {
 
     public XELogReadControl(Context context) {
         this.context = context;
+        executor = Executors.newSingleThreadExecutor();
     }
 
     public void init(DataLoadListener dataLoadListener) {
         this.dataLoadListener = dataLoadListener;
-        executor = Executors.newSingleThreadExecutor();
         executor.execute(() -> {
             dataList = XELogReadControl.this.readFile();
             initState(dataList);

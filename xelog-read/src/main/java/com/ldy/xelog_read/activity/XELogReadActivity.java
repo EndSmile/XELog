@@ -4,11 +4,9 @@ import android.support.annotation.Nullable;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
-import android.util.Log;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.EditText;
-import android.widget.ListView;
 import android.widget.SeekBar;
 import android.widget.TextView;
 
@@ -20,16 +18,16 @@ import com.ldy.xelog_read.widget.dateSelect.MsSelect;
 import com.ldy.xelog_read.widget.dropGroup.DropGroup;
 import com.ldy.xelog_read.widget.multiSelect.MultiSelect;
 import com.ldy.xelog_read.widget.tagtree.TagTree;
+import com.ldy.xelog_read.widget.xListView.XListView;
 
 import java.text.SimpleDateFormat;
-import java.util.Date;
 import java.util.List;
 
 public class XELogReadActivity extends XELogReadBaseActivity {
 
     private XELogReadControl xeLogReadControl;
     private LogListAdapter adapter;
-    private ListView lvLog;
+    private XListView xlvLog;
     private LogDetailItem liStartTime;
     private LogDetailItem liEndTime;
     private DropGroup dropGroup;
@@ -49,6 +47,7 @@ public class XELogReadActivity extends XELogReadBaseActivity {
     private Button btnFiletrate;
     private TagTree tagTree;
     private EditText edtStringFiltrate;
+    private XELogReadControl.DataLoadListener dataLoadListener;
 
 
     @Override
@@ -60,16 +59,12 @@ public class XELogReadActivity extends XELogReadBaseActivity {
     protected void initView(@Nullable Bundle savedInstanceState) {
         bindView();
         xeLogReadControl = new XELogReadControl(this);
-        xeLogReadControl.init(new XELogReadControl.DataLoadListener() {
+        dataLoadListener = new XELogReadControl.DataLoadListener() {
             @Override
             public void loadFirst(List<JsonFileBean> jsonFileBeen) {
                 runOnUiThread(() -> {
-                    if (adapter == null) {
-                        adapter = new LogListAdapter(XELogReadActivity.this, jsonFileBeen);
-                        lvLog.setAdapter(adapter);
-                    } else {
-                        adapter.setData(jsonFileBeen);
-                    }
+                    xlvLog.stopRefresh(true);
+
                     initTimeFiltrate();
                     initMultiSelFiltrate();
                     initTagTree();
@@ -80,23 +75,29 @@ public class XELogReadActivity extends XELogReadBaseActivity {
             @Override
             public void loadFinish(List<JsonFileBean> jsonFileBeen) {
                 runOnUiThread(() -> {
-                    adapter.setData(jsonFileBeen);
+                    if (adapter == null) {
+                        adapter = new LogListAdapter(XELogReadActivity.this, jsonFileBeen);
+                        xlvLog.setAdapter(adapter);
+                    } else {
+                        adapter.setData(jsonFileBeen);
+                    }
                     initTimeFiltrate();
                 });
             }
 
             @Override
             public void jumpPosition(int position) {
-                runOnUiThread(()->{
+                runOnUiThread(() -> {
                     msSelect.setTime(xeLogReadControl.getCheckedTime());
-                    lvLog.setSelection(adapter.getRealPosition(position));
+                    xlvLog.setSelection(adapter.getRealPosition(position));
                     dropGroup.fold(true);
                 });
             }
-        });
+        };
+        xeLogReadControl.init(dataLoadListener);
 
-        lvLog.setOnItemClickListener((parent, view, position, id) ->
-                LogDetailActivity.navigation(XELogReadActivity.this, adapter.getJsonFileBean(position)));
+        xlvLog.setOnItemClickListener((parent, view, position, id) ->
+                LogDetailActivity.navigation(XELogReadActivity.this, adapter.getJsonFileBean(position-1)));
     }
 
     private void initTagTree() {
@@ -123,7 +124,7 @@ public class XELogReadActivity extends XELogReadBaseActivity {
     }
 
     private void bindView() {
-        lvLog = (ListView) findViewById(R.id.lv_xelog_read);
+        xlvLog = (XListView) findViewById(R.id.xlv_xelog_read);
         dropGroup = (DropGroup) findViewById(R.id.dropGroup_xelog_read);
         chkFiltrate = (CheckBox) findViewById(R.id.chk_xelog_read);
         tvStartTime = (TextView) findViewById(R.id.tv_xelog_start_time);
@@ -185,6 +186,18 @@ public class XELogReadActivity extends XELogReadBaseActivity {
         tagTree.setTagChangeListener(this::filtrate);
 
         dropGroup.setCheckBox(chkFiltrate);
+
+        xlvLog.setXListViewListener(new XListView.IXListViewListener() {
+            @Override
+            public void onRefresh() {
+                xeLogReadControl.init(dataLoadListener);
+            }
+
+            @Override
+            public void onLoadMore() {
+
+            }
+        });
     }
 
     private void filtrate() {

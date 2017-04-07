@@ -55,7 +55,9 @@ public class TagTree extends ViewGroup {
 
     public void setTag(Tag tag) {
         if (this.tag != null) {
-            throw new IllegalArgumentException("tag 只能被设置一次！");
+            removeAllViews();
+            viewTagMap.clear();
+            views.clear();
         }
         this.tag = tag;
         addView(0, tag);

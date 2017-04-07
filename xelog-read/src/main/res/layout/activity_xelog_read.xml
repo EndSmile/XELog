@@ -54,8 +54,8 @@
                     android:layout_width="match_parent"
                     android:layout_height="1px"
                     android:background="@color/xelog_read_divider"/>
-                <ListView
-                    android:id="@+id/lv_xelog_read"
+                <com.ldy.xelog_read.widget.xListView.XListView
+                    android:id="@+id/xlv_xelog_read"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
                     android:divider="#cacaca"

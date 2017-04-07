@@ -28,6 +28,7 @@ public class MultiSelect extends LinearLayout {
     }
 
     public void setContent(String title, Set<String> content, Set<String> checkedContent) {
+        removeAllViews();
         contentList = new ArrayList<>();
         tvTitle = new TextView(getContext());
         tvTitle.setText(title);
