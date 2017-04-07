@@ -8,6 +8,15 @@
 
 通过继承[XELogConfig](https://github.com/EndSmile/XELog/blob/master/xelog/src/main/java/com/ldy/xelog/config/XELogConfig.java)并覆写其配置方法，新建对象，通过调用`v(String msg)`等即可完成打印。
 
+### 使用
+```
+//日志打印库
+compile 'com.ldy:xelog:0.2.0'
+//日志读取库
+compile 'com.ldy:xelog-read:0.2.0'
+//okhttp日志拦截器，使用xelog实现
+compile 'com.ldy:xelog-okhttp-interceptor:0.2.0'
+```
 
 ### todoList
 
