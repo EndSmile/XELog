@@ -36,6 +36,7 @@ public class XELog {
         XLog.init();
         XELog.initParams = initParams;
         XELogCommon.xelogDirPath = getFileDir();
+        XELogCommon.context = context;
     }
 
     public static void activateAutoLog(IAutoLog... autoLogs) {
