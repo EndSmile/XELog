@@ -76,7 +76,8 @@ class LogListAdapter extends BaseAdapter {
     }
 
     public int getRealPosition(int position){
-        return getCount() - 1 - position;
+//        return getCount() - 1 - position;
+        return position;
     }
 
     public List<LogBean> getList() {

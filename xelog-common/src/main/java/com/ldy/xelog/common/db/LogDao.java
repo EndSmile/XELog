@@ -21,6 +21,15 @@ import java.util.Set;
 
 /**
  * Created by ldy on 2017/4/10.
+ * log的数据库相关操作，分为一个主表和
+ * {@link #PACKAGE_NAME},{@link #LEVEL},{@link #THREAD},{@link #STACK_TRACE},
+ * {@link #AUTHOR},{@link #REMARKS},{@link #SUMMARY},{@link #TAG},
+ * {@link #EXTRA_1},{@link #EXTRA_2},{@link #SUMMARY},{@link #TAG}共计12个子表。</p>
+ * 每个子表的结构均为{id,text},其中{@link #TAG}表较为特殊，多出了{@link #TAG_SELECT}字段，
+ * 代表这个tag是否默认被选中，值为非0时代表选中</p>
+ *
+ * 主表用过外键连接这些子表，且列名与子表表名相同</p>
+ *
  */
 public class LogDao {
     public static final String TABLE_NAME_LOG = "log";
@@ -112,6 +121,11 @@ public class LogDao {
 
     private Map<String, Map<String, Integer>> childTabMap = new HashMap<>();
 
+    /**
+     * 增加一条数据，更新{@link #TABLE_NAME_LOG}表，并更新相关子表，子表内的数据不重复，主表在引用子表时通过
+     * {@link #ID}引用
+     * @param logBean 插入的数据
+     */
     public void addData(LogBean logBean) {
         try {
             database.beginTransaction();
@@ -251,18 +265,22 @@ public class LogDao {
         return hashSet;
     }
 
+    /**
+     * 根据参数查找数据，注意,为了提高性能，当其中的某些参数为null时则视为查找全部，具体可参考
+     * {@link FiltrateParamsBean#isValidFiltrate()}
+     */
     public List<LogBean> find(FiltrateParamsBean filtrateParamsBean) {
         if (!filtrateParamsBean.isValidFiltrate()) {
             //如果筛选条件无效，会导致结果为empty
             return new ArrayList<>();
         }
 
-        List<LogBean> logBeanList = new ArrayList<>();
         StringBuilder sqlBuilder = new StringBuilder("select * from ");
         sqlBuilder.append(TABLE_NAME_LOG);
         sqlBuilder.append(" where ");
         int length = sqlBuilder.length();
 
+        //根据筛选数据构造sql语句
         if (filtrateParamsBean.getTagBeans() != null) {
             Set<TagBean> tagBeans = new HashSet<>();
             for (TagBean tagBean : filtrateParamsBean.getTagBeans()) {
@@ -280,6 +298,7 @@ public class LogDao {
         buildFiltrateSql(EXTRA_2, sqlBuilder, filtrateParamsBean.getExtra2s());
 
         if (!TextUtils.isEmpty(filtrateParamsBean.getMatchText())) {
+            //匹配字符串
             sqlBuilder.append(CONTENT);
             sqlBuilder.append(" like ");
             sqlBuilder.append(" '%");
@@ -293,7 +312,10 @@ public class LogDao {
             sqlBuilder.delete(sqlBuilder.length() - 7, sqlBuilder.length());
         }
 
+        //查找按添加入表顺序的倒序
+        sqlBuilder.append(" order by "+ID+" desc ");
         sqlBuilder.append(" limit ");
+        //// TODO: 2017/4/11 为了避免分页时因数据库更新导致的数据错误，每次查找时更新全部数据
         sqlBuilder.append(FiltrateParamsBean.pageSize * (filtrateParamsBean.getPageNo()+1));
         sqlBuilder.append(" offset ");
 //        sqlBuilder.append(filtrateParamsBean.getPageNo() * FiltrateParamsBean.pageSize);
@@ -303,6 +325,11 @@ public class LogDao {
         String sql = sqlBuilder.toString();
         System.out.println(sql);
         Cursor cursor = database.rawQuery(sql, null);
+        return getLogBeenByCursor(cursor);
+    }
+
+    private List<LogBean> getLogBeenByCursor(Cursor cursor) {
+        List<LogBean> logBeanList = new ArrayList<>();
         while (cursor.moveToNext()) {
             LogBean logBean = new LogBean();
             logBean.setId(cursor.getLong(cursor.getColumnIndex(ID)));
@@ -325,6 +352,9 @@ public class LogDao {
         return logBeanList;
     }
 
+    /**
+     * 根据筛选集和子表名构造sql语句
+     */
     private void buildFiltrateSql(String childTableName, StringBuilder sqlBuilder, Set<? extends ChildTabBean> childTabBeen) {
         if (childTabBeen == null || childTabBeen.isEmpty()) {
             return;
@@ -343,28 +373,8 @@ public class LogDao {
     }
 
     public List<LogBean> findAll() {
-        ArrayList<LogBean> logBeanList = new ArrayList<>();
         Cursor cursor = database.rawQuery("select * from " + TABLE_NAME_LOG, null);
-        while (cursor.moveToNext()) {
-            LogBean logBean = new LogBean();
-            logBean.setId(cursor.getLong(cursor.getColumnIndex(ID)));
-            logBean.setTime(cursor.getLong(cursor.getColumnIndex(TIME)));
-            logBean.setContent(cursor.getString(cursor.getColumnIndex(CONTENT)));
-
-            logBean.setPackageName(getChildItemText(PACKAGE_NAME, cursor));
-            logBean.setLevel(getChildItemText(LEVEL, cursor));
-            logBean.setThread(getChildItemText(THREAD, cursor));
-            logBean.setStackTrace(getChildItemText(STACK_TRACE, cursor));
-            logBean.setAuthor(getChildItemText(AUTHOR, cursor));
-            logBean.setRemarks(getChildItemText(REMARKS, cursor));
-            logBean.setSummary(getChildItemText(SUMMARY, cursor));
-            logBean.setTag(getChildItemText(TAG, cursor));
-            logBean.setExtra1(getChildItemText(EXTRA_1, cursor));
-            logBean.setExtra2(getChildItemText(EXTRA_2, cursor));
-
-            logBeanList.add(logBean);
-        }
-        return logBeanList;
+        return getLogBeenByCursor(cursor);
     }
 
     private String getChildItemText(String childTabName, Cursor parentCursor) {
