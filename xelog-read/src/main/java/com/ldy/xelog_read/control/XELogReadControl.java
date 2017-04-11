@@ -61,6 +61,8 @@ public class XELogReadControl {
             if (filtrateParamsBean==null){
                 filtrateParamsBean = new FiltrateParamsBean();
                 filtrateParamsBean.setTagBeans(logFiltrate.getTagBeans());
+            }else {
+                filtrateParamsBean.setPageNo(0);
             }
             dataList = logDao.find(filtrateParamsBean);
             dataLoadListener.loadFirst(dataList);

@@ -7,7 +7,7 @@ import java.util.Set;
  * set为null则代表匹配全部，为empty则代表都不匹配
  */
 public class FiltrateParamsBean {
-    public static final int pageSize = 50;
+    public static final int pageSize = 100;
 
     /**
      * 初始为0

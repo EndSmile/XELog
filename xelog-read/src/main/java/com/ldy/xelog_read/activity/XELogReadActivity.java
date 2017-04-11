@@ -79,7 +79,7 @@ public class XELogReadActivity extends XELogReadBaseActivity {
             @Override
             public void loadFinish(List<LogBean> dataList) {
                 runOnUiThread(() -> {
-                    if (pageNo > 0 && dataList.get(0).getId() == adapter.getList().get(0).getId()) {
+                    if (pageNo > 0 && dataList.size() == adapter.getList().size()) {
                         Toast.makeText(XELogReadActivity.this, "没有更多数据了...", Toast.LENGTH_SHORT).show();
                     }
                     xlvLog.stopLoadMore();
@@ -214,6 +214,7 @@ public class XELogReadActivity extends XELogReadBaseActivity {
 
             @Override
             public void onLoadMore() {
+                //// TODO: 2017/4/11 下拉刷新时并不更新状态值，筛选条件如果这时候增多的话会出现bug
                 filtrate(pageNo + 1);
             }
         });
