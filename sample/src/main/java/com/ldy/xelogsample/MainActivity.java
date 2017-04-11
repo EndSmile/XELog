@@ -40,14 +40,24 @@ public class MainActivity extends AppCompatActivity {
         okHttpClient.newCall(request).enqueue(new Callback() {
             @Override
             public void onFailure(Call call, IOException e) {
-                Toast.makeText(MainActivity.this, e.getMessage(), Toast.LENGTH_SHORT).show();
+                showToast(e.getMessage());
             }
 
             @Override
             public void onResponse(Call call, Response response) throws IOException {
-                Toast.makeText(MainActivity.this, response.body().toString(), Toast.LENGTH_SHORT).show();
+                showToast(response.body().toString());
             }
         });
+    }
+
+    private void showToast(final String toast) {
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                Toast.makeText(MainActivity.this, toast, Toast.LENGTH_SHORT).show();
+            }
+        });
+
     }
 
     public void errorLog(View view) {

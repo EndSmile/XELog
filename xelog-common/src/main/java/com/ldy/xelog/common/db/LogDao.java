@@ -3,7 +3,7 @@ package com.ldy.xelog.common.db;
 import android.content.ContentValues;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
-import android.util.Log;
+import android.text.TextUtils;
 import android.util.SparseArray;
 
 import com.ldy.xelog.common.bean.ChildTabBean;
@@ -213,7 +213,7 @@ public class LogDao {
         logFiltrateBean.setExtra1s(findChildTab(EXTRA_1));
         logFiltrateBean.setExtra2s(findChildTab(EXTRA_2));
 
-        List childTab = findChildTab(TAG);
+        Set childTab = findChildTab(TAG);
         logFiltrateBean.setTagBeans(childTab);
 
         Cursor cursor = database.rawQuery("select time from " + TABLE_NAME_LOG + " limit 1", null);
@@ -229,9 +229,9 @@ public class LogDao {
         return logFiltrateBean;
     }
 
-    private List<ChildTabBean> findChildTab(String childTabName) {
+    private Set<ChildTabBean> findChildTab(String childTabName) {
         SparseArray<String> childMap = new SparseArray<>();
-        List<ChildTabBean> hashSet = new ArrayList<>();
+        Set<ChildTabBean> hashSet = new HashSet<>();
 
         Cursor cursor = database.rawQuery("select * from " + childTabName, null);
         while (cursor.moveToNext()) {
@@ -252,14 +252,26 @@ public class LogDao {
     }
 
     public List<LogBean> find(FiltrateParamsBean filtrateParamsBean) {
-        ArrayList<LogBean> logBeanList = new ArrayList<>();
+        if (!filtrateParamsBean.isValidFiltrate()) {
+            //如果筛选条件无效，会导致结果为empty
+            return new ArrayList<>();
+        }
+
+        List<LogBean> logBeanList = new ArrayList<>();
         StringBuilder sqlBuilder = new StringBuilder("select * from ");
         sqlBuilder.append(TABLE_NAME_LOG);
         sqlBuilder.append(" where ");
         int length = sqlBuilder.length();
 
-        List tagBeans = filtrateParamsBean.getTagBeans();
-        buildFiltrateSql(TAG, sqlBuilder, tagBeans);
+        if (filtrateParamsBean.getTagBeans() != null) {
+            Set<TagBean> tagBeans = new HashSet<>();
+            for (TagBean tagBean : filtrateParamsBean.getTagBeans()) {
+                if (tagBean.isTagSelect()) {
+                    tagBeans.add(tagBean);
+                }
+            }
+            buildFiltrateSql(TAG, sqlBuilder, tagBeans);
+        }
         buildFiltrateSql(AUTHOR, sqlBuilder, filtrateParamsBean.getAuthors());
         buildFiltrateSql(LEVEL, sqlBuilder, filtrateParamsBean.getLevels());
         buildFiltrateSql(PACKAGE_NAME, sqlBuilder, filtrateParamsBean.getPackageNames());
@@ -267,15 +279,26 @@ public class LogDao {
         buildFiltrateSql(EXTRA_1, sqlBuilder, filtrateParamsBean.getExtra1s());
         buildFiltrateSql(EXTRA_2, sqlBuilder, filtrateParamsBean.getExtra2s());
 
-        if (sqlBuilder.length() != length) {
+        if (!TextUtils.isEmpty(filtrateParamsBean.getMatchText())) {
+            sqlBuilder.append(CONTENT);
+            sqlBuilder.append(" like ");
+            sqlBuilder.append(" '%");
+            sqlBuilder.append(filtrateParamsBean.getMatchText());
+            sqlBuilder.append("%' ");
+        } else if (sqlBuilder.length() != length) {
             //如果添加筛选条件，删除最后的"and"
             sqlBuilder.delete(sqlBuilder.length() - 5, sqlBuilder.length());
+        } else {
+            //没有添加筛选条件,删除where
+            sqlBuilder.delete(sqlBuilder.length() - 7, sqlBuilder.length());
         }
 
         sqlBuilder.append(" limit ");
-        sqlBuilder.append(FiltrateParamsBean.pageSize);
+        sqlBuilder.append(FiltrateParamsBean.pageSize * (filtrateParamsBean.getPageNo()+1));
         sqlBuilder.append(" offset ");
-        sqlBuilder.append(filtrateParamsBean.getPageNo() * FiltrateParamsBean.pageSize);
+//        sqlBuilder.append(filtrateParamsBean.getPageNo() * FiltrateParamsBean.pageSize);
+        sqlBuilder.append(0);
+
 
         String sql = sqlBuilder.toString();
         System.out.println(sql);
@@ -302,7 +325,7 @@ public class LogDao {
         return logBeanList;
     }
 
-    private void buildFiltrateSql(String childTableName, StringBuilder sqlBuilder, List<ChildTabBean> childTabBeen) {
+    private void buildFiltrateSql(String childTableName, StringBuilder sqlBuilder, Set<? extends ChildTabBean> childTabBeen) {
         if (childTabBeen == null || childTabBeen.isEmpty()) {
             return;
         }

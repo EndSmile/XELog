@@ -79,6 +79,10 @@ class LogListAdapter extends BaseAdapter {
         return getCount() - 1 - position;
     }
 
+    public List<LogBean> getList() {
+        return list;
+    }
+
     static class ViewHolder {
         TimeShowView tvTime;
         TextView tvSummary;

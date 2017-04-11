@@ -1,12 +1,11 @@
 package com.ldy.xelog.common.bean;
 
-import java.util.List;
-import java.util.List;
+import java.util.Set;
 
 /**
  * Created by ldy on 2017/4/11.
+ * set为null则代表匹配全部，为empty则代表都不匹配
  */
-
 public class FiltrateParamsBean {
     public static final int pageSize = 50;
 
@@ -14,15 +13,43 @@ public class FiltrateParamsBean {
      * 初始为0
      */
     private int pageNo = 0;
+    private String matchText;
 
-    private List<ChildTabBean> packageNames;
-    private List<ChildTabBean> levels;
-    private List<ChildTabBean> authors;
-    private List<ChildTabBean> threads;
-    private List<ChildTabBean> extra1s;
-    private List<ChildTabBean> extra2s;
+    //为null则代表匹配全部
+    private Set<ChildTabBean> packageNames;
+    private Set<ChildTabBean> levels;
+    private Set<ChildTabBean> authors;
+    private Set<ChildTabBean> threads;
+    private Set<ChildTabBean> extra1s;
+    private Set<ChildTabBean> extra2s;
 
-    private List<TagBean> tagBeans;
+    private Set<TagBean> tagBeans;
+
+
+    public boolean isValidFiltrate() {
+        return isValid(packageNames)
+                && isValid(levels)
+                && isValid(authors)
+                && isValid(threads)
+                && isValid(extra1s)
+                && isValid(extra2s)
+                && isValidTag()
+                && pageNo >= 0
+                ;
+    }
+
+    private boolean isValid(Set set) {
+        return set == null || !set.isEmpty();
+    }
+
+    private boolean isValidTag(){
+        for (TagBean tagBean:tagBeans){
+            if (tagBean.isTagSelect()){
+                return true;
+            }
+        }
+        return false;
+    }
 
     public static int getPageSize() {
         return pageSize;
@@ -36,59 +63,67 @@ public class FiltrateParamsBean {
         this.pageNo = pageNo;
     }
 
-    public List<ChildTabBean> getPackageNames() {
+    public Set<ChildTabBean> getPackageNames() {
         return packageNames;
     }
 
-    public void setPackageNames(List<ChildTabBean> packageNames) {
+    public void setPackageNames(Set<ChildTabBean> packageNames) {
         this.packageNames = packageNames;
     }
 
-    public List<ChildTabBean> getLevels() {
+    public Set<ChildTabBean> getLevels() {
         return levels;
     }
 
-    public void setLevels(List<ChildTabBean> levels) {
+    public void setLevels(Set<ChildTabBean> levels) {
         this.levels = levels;
     }
 
-    public List<ChildTabBean> getAuthors() {
+    public Set<ChildTabBean> getAuthors() {
         return authors;
     }
 
-    public void setAuthors(List<ChildTabBean> authors) {
+    public void setAuthors(Set<ChildTabBean> authors) {
         this.authors = authors;
     }
 
-    public List<ChildTabBean> getThreads() {
+    public Set<ChildTabBean> getThreads() {
         return threads;
     }
 
-    public void setThreads(List<ChildTabBean> threads) {
+    public void setThreads(Set<ChildTabBean> threads) {
         this.threads = threads;
     }
 
-    public List<ChildTabBean> getExtra1s() {
+    public Set<ChildTabBean> getExtra1s() {
         return extra1s;
     }
 
-    public void setExtra1s(List<ChildTabBean> extra1s) {
+    public void setExtra1s(Set<ChildTabBean> extra1s) {
         this.extra1s = extra1s;
     }
 
-    public List<ChildTabBean> getExtra2s() {
+    public Set<ChildTabBean> getExtra2s() {
         return extra2s;
     }
 
-    public void setExtra2s(List<ChildTabBean> extra2s) {
+    public void setExtra2s(Set<ChildTabBean> extra2s) {
         this.extra2s = extra2s;
     }
 
-    public List<TagBean> getTagBeans() {
+    public Set<TagBean> getTagBeans() {
         return tagBeans;
     }
 
-    public void setTagBeans(List<TagBean> tagBeans) {
+    public void setTagBeans(Set<TagBean> tagBeans) {
         this.tagBeans = tagBeans;
+    }
+
+    public String getMatchText() {
+        return matchText;
+    }
+
+    public void setMatchText(String matchText) {
+        this.matchText = matchText;
     }
 }

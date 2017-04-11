@@ -185,7 +185,7 @@ public class LogBean implements Parcelable {
         this.tag = getStrByList(tag,TAG_SEPARATOR);
     }
 
-    private String getStrByList(List<String> list,String separator) {
+    public static String getStrByList(List<String> list,String separator) {
         if (list==null){
             return null;
         }

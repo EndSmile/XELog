@@ -1,7 +1,9 @@
 package com.ldy.xelog_read.control;
 
 import android.content.Context;
+import android.support.annotation.NonNull;
 
+import com.ldy.xelog.common.bean.FiltrateParamsBean;
 import com.ldy.xelog.common.bean.LogBean;
 import com.ldy.xelog.common.bean.LogFiltrateBean;
 import com.ldy.xelog.common.bean.TagBean;
@@ -33,12 +35,17 @@ public class XELogReadControl {
     private Set<String> checkedAuthors;
     private Set<String> threads;
     private Set<String> checkedThreads;
+    private Set<String> extra1s;
+    private Set<String> checkedExtra1s;
+    private Set<String> extra2s;
+    private Set<String> checkedExtra2s;
 
     private List<LogBean> dataList;
     private ExecutorService executor;
     private DataLoadListener dataLoadListener;
     private LogDao logDao;
     private LogFiltrateBean logFiltrate;
+    private FiltrateParamsBean filtrateParamsBean;
 
     public XELogReadControl(Context context) {
         this.context = context;
@@ -50,60 +57,80 @@ public class XELogReadControl {
     public void init(DataLoadListener dataLoadListener) {
         this.dataLoadListener = dataLoadListener;
         executor.execute(() -> {
-            dataList = XELogReadControl.this.readFile();
-
             initState();
-//            initState(dataList);
-
+            if (filtrateParamsBean==null){
+                filtrateParamsBean = new FiltrateParamsBean();
+                filtrateParamsBean.setTagBeans(logFiltrate.getTagBeans());
+            }
+            dataList = logDao.find(filtrateParamsBean);
             dataLoadListener.loadFirst(dataList);
         });
+    }
 
+    public void filtrate(int pageNo
+            , List<String> levels, List<String> threads, List<String> authors,List<String> packages
+            , List<String> extra1s, List<String> extra2s,String regular) {
+        executor.execute(()->{
+            filtrateParamsBean = new FiltrateParamsBean();
+            filtrateParamsBean.setLevels(LogFiltrateBean.getChildTabSet(logFiltrate.getLevels(), levels));
+            filtrateParamsBean.setAuthors(LogFiltrateBean.getChildTabSet(logFiltrate.getAuthors(), authors));
+            filtrateParamsBean.setThreads(LogFiltrateBean.getChildTabSet(logFiltrate.getThreads(), threads));
+            filtrateParamsBean.setPackageNames(LogFiltrateBean.getChildTabSet(logFiltrate.getPackageNames(), packages));
+
+            filtrateParamsBean.setTagBeans(TagBean.getTagTabSet(logFiltrate.getTagBeans(), getTagStrList()));
+            filtrateParamsBean.setExtra1s(LogFiltrateBean.getChildTabSet(logFiltrate.getExtra1s(), extra1s));
+            filtrateParamsBean.setExtra2s(LogFiltrateBean.getChildTabSet(logFiltrate.getExtra2s(), extra2s));
+            filtrateParamsBean.setMatchText(regular);
+
+            filtrateParamsBean.setPageNo(pageNo);
+            dataList = logDao.find(filtrateParamsBean);
+            dataLoadListener.loadFinish(dataList);
+        });
+
+    }
+
+    @NonNull
+    private ArrayList<String> getTagStrList() {
+        //view的check改变时tag会被改变
+        List<List<String>> selectPaths = tag.getAllPath();
+        for (List<String> path : selectPaths) {
+            //移除统一添加的根节点
+            path.remove(0);
+        }
+        ArrayList<String> selectStrPath = new ArrayList<>();
+        for (List<String> path:selectPaths){
+            selectStrPath.add(LogBean.getStrByList(path,LogBean.TAG_SEPARATOR));
+        }
+        return selectStrPath;
     }
 
     private void initState() {
         logFiltrate = logDao.findAllLogFiltrate();
         tag = new Tag("xelog-read");
-        for (TagBean tagBean: logFiltrate.getTagBeans()){
-            tag.addTag(tagBean.getTagList(),tagBean.isTagSelect());
+        for (TagBean tagBean : logFiltrate.getTagBeans()) {
+            tag.addTag(tagBean.getTagList(), tagBean.isTagSelect());
         }
         tag.trim();
 
-    }
+        packageNames = LogFiltrateBean.getTextSet(logFiltrate.getPackageNames());
+        levels = LogFiltrateBean.getTextSet(logFiltrate.getLevels());
+        threads = LogFiltrateBean.getTextSet(logFiltrate.getThreads());
+        authors = LogFiltrateBean.getTextSet(logFiltrate.getAuthors());
+        extra1s = LogFiltrateBean.getTextSet(logFiltrate.getExtra1s());
+        extra2s = LogFiltrateBean.getTextSet(logFiltrate.getExtra2s());
 
-//    private void initState(List<LogBean> dataList) {
-//        if (dataList == null || dataList.isEmpty()) {
-//            return;
-//        }
-//
-//
-//        packageNames = new HashSet<>();
-//        levels = new HashSet<>();
-//        threads = new HashSet<>();
-//        tag = new Tag("xelog-read");
-//        authors = new HashSet<>();
-//
-//        startTime = -1;
-//        endTime = -1;
-//
-//        for (int i = 0, length = dataList.size(); i < length; i++) {
-//            LogBean logBean = dataList.get(i);
-//            updateTime(logBean);
-//
-//            packageNames.add(logBean.getPackageName());
-//            levels.add(logBean.getLevel());
-//            tag.addTag(logBean.getTagList(), logBean.isTagSelect());
-//            authors.add(logBean.getAuthor());
-//            threads.add(logBean.getThread());
-//        }
-//
-//        checkedTime = endTime;
-//        checkedPackage = new HashSet<>(packageNames);
-//        checkedLevels = new HashSet<>(levels);
-//        checkedThreads = new HashSet<>(threads);
-//        checkedAuthors = new HashSet<>(authors);
-//
-//        tag.trim();
-//    }
+        startTime = logFiltrate.getStartTime();
+        endTime = logFiltrate.getStartTime();
+        checkedTime = endTime;
+
+        checkedPackage = new HashSet<>(packageNames);
+        checkedLevels = new HashSet<>(levels);
+        checkedThreads = new HashSet<>(threads);
+        checkedAuthors = new HashSet<>(authors);
+        checkedExtra1s = new HashSet<>(extra1s);
+        checkedExtra2s = new HashSet<>(extra2s);
+
+    }
 
     private void updateTime(LogBean logBean) {
         if (logBean == null) {
@@ -259,10 +286,26 @@ public class XELogReadControl {
         return checkedThreads;
     }
 
-    public interface DataLoadListener {
-        void loadFirst(List<LogBean> jsonFileBeen);
+    public Set<String> getExtra1s() {
+        return extra1s;
+    }
 
-        void loadFinish(List<LogBean> jsonFileBeen);
+    public Set<String> getCheckedExtra1s() {
+        return checkedExtra1s;
+    }
+
+    public Set<String> getExtra2s() {
+        return extra2s;
+    }
+
+    public Set<String> getCheckedExtra2s() {
+        return checkedExtra2s;
+    }
+
+    public interface DataLoadListener {
+        void loadFirst(List<LogBean> dataList);
+
+        void loadFinish(List<LogBean> dataList);
 
         void jumpPosition(int position);
     }

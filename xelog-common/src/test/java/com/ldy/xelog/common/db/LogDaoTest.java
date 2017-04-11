@@ -75,14 +75,14 @@ public class LogDaoTest {
         logBean.setContent("xxxx");
         logDao.addData(logBean);
 
-        LogFiltrateBean allLogFiltrate = logDao.findAllLogFiltrate();
-        FiltrateParamsBean filtrateParamsBean = new FiltrateParamsBean();
-        List<ChildTabBean> authors = allLogFiltrate.getAuthors();
-        authors.remove(0);
-        filtrateParamsBean.setAuthors(authors);
-        filtrateParamsBean.setLevels(allLogFiltrate.getLevels());
-        List<LogBean> logBeen = logDao.find(filtrateParamsBean);
-        assertEquals(1, logBeen.size());
+//        LogFiltrateBean allLogFiltrate = logDao.findAllLogFiltrate();
+//        FiltrateParamsBean filtrateParamsBean = new FiltrateParamsBean();
+//        List<ChildTabBean> authors = allLogFiltrate.getAuthors();
+//        authors.remove(0);
+//        filtrateParamsBean.setAuthors(authors);
+//        filtrateParamsBean.setLevels(allLogFiltrate.getLevels());
+//        List<LogBean> logBeen = logDao.find(filtrateParamsBean);
+//        assertEquals(1, logBeen.size());
     }
 
     @Test

@@ -146,6 +146,21 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="8dp" />
+        <com.ldy.xelog_read.widget.multiSelect.MultiSelect
+            android:id="@+id/multiSel_package"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp" />
+        <com.ldy.xelog_read.widget.multiSelect.MultiSelect
+            android:id="@+id/multiSel_extra1"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp" />
+        <com.ldy.xelog_read.widget.multiSelect.MultiSelect
+            android:id="@+id/multiSel_extra2"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp" />
 
         <Button
             android:id="@+id/btn_xelog_read_filtrate_certain"

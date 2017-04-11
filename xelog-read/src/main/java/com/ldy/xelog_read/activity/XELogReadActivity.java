@@ -9,6 +9,7 @@ import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.SeekBar;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.ldy.xelog.common.bean.LogBean;
 import com.ldy.xelog_read.R;
@@ -48,6 +49,10 @@ public class XELogReadActivity extends XELogReadBaseActivity {
     private TagTree tagTree;
     private EditText edtStringFiltrate;
     private XELogReadControl.DataLoadListener dataLoadListener;
+    private MultiSelect multiSelPackage;
+    private MultiSelect multiSelExtra1;
+    private MultiSelect multiSelExtra2;
+    private int pageNo;
 
 
     @Override
@@ -61,26 +66,24 @@ public class XELogReadActivity extends XELogReadBaseActivity {
         xeLogReadControl = new XELogReadControl(this);
         dataLoadListener = new XELogReadControl.DataLoadListener() {
             @Override
-            public void loadFirst(List<LogBean> jsonFileBeen) {
+            public void loadFirst(List<LogBean> dataList) {
                 runOnUiThread(() -> {
                     xlvLog.stopRefresh(true);
-
                     initTimeFiltrate();
                     initMultiSelFiltrate();
                     initTagTree();
-                    filtrate();
+                    setData(dataList);
                 });
             }
 
             @Override
-            public void loadFinish(List<LogBean> jsonFileBeen) {
+            public void loadFinish(List<LogBean> dataList) {
                 runOnUiThread(() -> {
-                    if (adapter == null) {
-                        adapter = new LogListAdapter(XELogReadActivity.this, jsonFileBeen);
-                        xlvLog.setAdapter(adapter);
-                    } else {
-                        adapter.setData(jsonFileBeen);
+                    if (pageNo > 0 && dataList.get(0).getId() == adapter.getList().get(0).getId()) {
+                        Toast.makeText(XELogReadActivity.this, "没有更多数据了...", Toast.LENGTH_SHORT).show();
                     }
+                    xlvLog.stopLoadMore();
+                    setData(dataList);
                     initTimeFiltrate();
                 });
             }
@@ -97,7 +100,17 @@ public class XELogReadActivity extends XELogReadBaseActivity {
         xeLogReadControl.init(dataLoadListener);
 
         xlvLog.setOnItemClickListener((parent, view, position, id) ->
-                LogDetailActivity.navigation(XELogReadActivity.this, adapter.getJsonFileBean(position-1)));
+                LogDetailActivity.navigation(XELogReadActivity.this, adapter.getJsonFileBean(position - 1)));
+        xlvLog.setPullLoadEnable(true);
+    }
+
+    private void setData(List<LogBean> jsonFileBeen) {
+        if (adapter == null) {
+            adapter = new LogListAdapter(XELogReadActivity.this, jsonFileBeen);
+            xlvLog.setAdapter(adapter);
+        } else {
+            adapter.setData(jsonFileBeen);
+        }
     }
 
     private void initTagTree() {
@@ -108,6 +121,9 @@ public class XELogReadActivity extends XELogReadBaseActivity {
         multiSelLevel.setContent("level:", xeLogReadControl.getLevels(), xeLogReadControl.getCheckedLevels());
         multiSelAuthor.setContent("author:", xeLogReadControl.getAuthors(), xeLogReadControl.getCheckedAuthors());
         multiSelThread.setContent("thread:", xeLogReadControl.getThreads(), xeLogReadControl.getCheckedThreads());
+        multiSelPackage.setContent("package:", xeLogReadControl.getPackageNames(), xeLogReadControl.getCheckedPackage());
+        multiSelExtra1.setContent("extra1:", xeLogReadControl.getExtra1s(), xeLogReadControl.getExtra1s());
+        multiSelExtra2.setContent("extra2:", xeLogReadControl.getExtra2s(), xeLogReadControl.getCheckedExtra2s());
     }
 
     private void initTimeFiltrate() {
@@ -135,6 +151,9 @@ public class XELogReadActivity extends XELogReadBaseActivity {
         multiSelLevel = (MultiSelect) findViewById(R.id.multiSel_level);
         multiSelAuthor = (MultiSelect) findViewById(R.id.multiSel_author);
         multiSelThread = (MultiSelect) findViewById(R.id.multiSel_thread);
+        multiSelPackage = (MultiSelect) findViewById(R.id.multiSel_package);
+        multiSelExtra1 = (MultiSelect) findViewById(R.id.multiSel_extra1);
+        multiSelExtra2 = (MultiSelect) findViewById(R.id.multiSel_extra2);
         btnFiletrate = (Button) findViewById(R.id.btn_xelog_read_filtrate_certain);
         tagTree = (TagTree) findViewById(R.id.tagTree_xelog_read);
         edtStringFiltrate = (EditText) findViewById(R.id.edt_xelog_read_string_filtrate);
@@ -164,7 +183,7 @@ public class XELogReadActivity extends XELogReadBaseActivity {
             xeLogReadControl.jump2Time(time);
         });
 
-        btnFiletrate.setOnClickListener((view) -> filtrate());
+        btnFiletrate.setOnClickListener((view) -> filtrate(0));
         edtStringFiltrate.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence s, int start, int count, int after) {
@@ -178,12 +197,12 @@ public class XELogReadActivity extends XELogReadBaseActivity {
 
             @Override
             public void afterTextChanged(Editable s) {
-                filtrate();
+                filtrate(0);
             }
         });
 
 
-        tagTree.setTagChangeListener(this::filtrate);
+        tagTree.setTagChangeListener(() -> filtrate(0));
 
         dropGroup.setCheckBox(chkFiltrate);
 
@@ -195,16 +214,16 @@ public class XELogReadActivity extends XELogReadBaseActivity {
 
             @Override
             public void onLoadMore() {
-
+                filtrate(pageNo + 1);
             }
         });
     }
 
-    private void filtrate() {
-        xeLogReadControl.filtrate(multiSelLevel.getSelect(),
-                multiSelThread.getSelect(),
-                multiSelAuthor.getSelect(),
-                edtStringFiltrate.getText().toString());
+    private void filtrate(int pageNo) {
+        this.pageNo = pageNo;
+        xeLogReadControl.filtrate(pageNo, multiSelLevel.getSelect()
+                , multiSelThread.getSelect(), multiSelAuthor.getSelect(), multiSelPackage.getSelect(), multiSelExtra1.getSelect(),
+                multiSelExtra2.getSelect(), edtStringFiltrate.getText().toString());
     }
 
 
