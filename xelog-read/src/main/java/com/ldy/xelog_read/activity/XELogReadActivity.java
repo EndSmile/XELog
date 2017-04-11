@@ -10,7 +10,7 @@ import android.widget.EditText;
 import android.widget.SeekBar;
 import android.widget.TextView;
 
-import com.ldy.xelog.common.JsonFileBean;
+import com.ldy.xelog.common.bean.LogBean;
 import com.ldy.xelog_read.R;
 import com.ldy.xelog_read.control.XELogReadControl;
 import com.ldy.xelog_read.widget.LogDetailItem;
@@ -61,7 +61,7 @@ public class XELogReadActivity extends XELogReadBaseActivity {
         xeLogReadControl = new XELogReadControl(this);
         dataLoadListener = new XELogReadControl.DataLoadListener() {
             @Override
-            public void loadFirst(List<JsonFileBean> jsonFileBeen) {
+            public void loadFirst(List<LogBean> jsonFileBeen) {
                 runOnUiThread(() -> {
                     xlvLog.stopRefresh(true);
 
@@ -73,7 +73,7 @@ public class XELogReadActivity extends XELogReadBaseActivity {
             }
 
             @Override
-            public void loadFinish(List<JsonFileBean> jsonFileBeen) {
+            public void loadFinish(List<LogBean> jsonFileBeen) {
                 runOnUiThread(() -> {
                     if (adapter == null) {
                         adapter = new LogListAdapter(XELogReadActivity.this, jsonFileBeen);

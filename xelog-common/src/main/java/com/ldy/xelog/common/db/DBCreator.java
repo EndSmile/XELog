@@ -11,15 +11,14 @@ import com.ldy.xelog.common.XELogCommon;
  */
 
 public class DBCreator extends SQLiteOpenHelper{
-    private static final String DB_NAME = "xelog";
     private static final int DB_VERSION = 1;
 
     private DBCreator() {
-        super(XELogCommon.context, XELogCommon.xelogDirPath+"/"+DB_NAME, null, DB_VERSION);
+        super(XELogCommon.context, XELogCommon.getDBDirPath(), null, DB_VERSION);
     }
 
     private static class Instance{
-        static DBCreator dbCreator = new DBCreator();
+        private static final DBCreator dbCreator = new DBCreator();
     }
 
     public static DBCreator instance(){
@@ -28,7 +27,9 @@ public class DBCreator extends SQLiteOpenHelper{
 
     @Override
     public void onCreate(SQLiteDatabase db) {
-        db.execSQL("CREATE TABLE IF NOT EXISTS log ()");
+        for (String createSql:LogDao.getCreateSql()){
+            db.execSQL(createSql);
+        }
     }
 
     @Override

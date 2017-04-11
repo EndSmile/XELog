@@ -2,11 +2,10 @@ package com.ldy.xelog_read.control;
 
 import android.content.Context;
 
-import com.google.gson.Gson;
-import com.google.gson.reflect.TypeToken;
-import com.ldy.xelog.common.JsonFileBean;
-import com.ldy.xelog_read.XELogRead;
-import com.ldy.xelog_read.utils.FileUtils;
+import com.ldy.xelog.common.bean.LogBean;
+import com.ldy.xelog.common.bean.LogFiltrateBean;
+import com.ldy.xelog.common.bean.TagBean;
+import com.ldy.xelog.common.db.LogDao;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -35,64 +34,82 @@ public class XELogReadControl {
     private Set<String> threads;
     private Set<String> checkedThreads;
 
-    private List<JsonFileBean> dataList;
+    private List<LogBean> dataList;
     private ExecutorService executor;
     private DataLoadListener dataLoadListener;
+    private LogDao logDao;
+    private LogFiltrateBean logFiltrate;
 
     public XELogReadControl(Context context) {
         this.context = context;
         executor = Executors.newSingleThreadExecutor();
+        logDao = LogDao.instance();
+
     }
 
     public void init(DataLoadListener dataLoadListener) {
         this.dataLoadListener = dataLoadListener;
         executor.execute(() -> {
             dataList = XELogReadControl.this.readFile();
-            initState(dataList);
+
+            initState();
+//            initState(dataList);
+
             dataLoadListener.loadFirst(dataList);
         });
 
     }
 
-    private void initState(List<JsonFileBean> dataList) {
-        if (dataList == null || dataList.isEmpty()) {
-            return;
-        }
-
-        packageNames = new HashSet<>();
-        levels = new HashSet<>();
-        threads = new HashSet<>();
+    private void initState() {
+        logFiltrate = logDao.findAllLogFiltrate();
         tag = new Tag("xelog-read");
-        authors = new HashSet<>();
-
-        startTime = -1;
-        endTime = -1;
-
-        for (int i = 0, length = dataList.size(); i < length; i++) {
-            JsonFileBean jsonFileBean = dataList.get(i);
-            updateTime(jsonFileBean);
-
-            packageNames.add(jsonFileBean.getPackageName());
-            levels.add(jsonFileBean.getLevel());
-            tag.addTag(jsonFileBean.getTag(), jsonFileBean.isTagSelect());
-            authors.add(jsonFileBean.getAuthor());
-            threads.add(jsonFileBean.getThread());
+        for (TagBean tagBean: logFiltrate.getTagBeans()){
+            tag.addTag(tagBean.getTagList(),tagBean.isTagSelect());
         }
-
-        checkedTime = endTime;
-        checkedPackage = new HashSet<>(packageNames);
-        checkedLevels = new HashSet<>(levels);
-        checkedThreads = new HashSet<>(threads);
-        checkedAuthors = new HashSet<>(authors);
-
         tag.trim();
+
     }
 
-    private void updateTime(JsonFileBean jsonFileBean) {
-        if (jsonFileBean == null) {
+//    private void initState(List<LogBean> dataList) {
+//        if (dataList == null || dataList.isEmpty()) {
+//            return;
+//        }
+//
+//
+//        packageNames = new HashSet<>();
+//        levels = new HashSet<>();
+//        threads = new HashSet<>();
+//        tag = new Tag("xelog-read");
+//        authors = new HashSet<>();
+//
+//        startTime = -1;
+//        endTime = -1;
+//
+//        for (int i = 0, length = dataList.size(); i < length; i++) {
+//            LogBean logBean = dataList.get(i);
+//            updateTime(logBean);
+//
+//            packageNames.add(logBean.getPackageName());
+//            levels.add(logBean.getLevel());
+//            tag.addTag(logBean.getTagList(), logBean.isTagSelect());
+//            authors.add(logBean.getAuthor());
+//            threads.add(logBean.getThread());
+//        }
+//
+//        checkedTime = endTime;
+//        checkedPackage = new HashSet<>(packageNames);
+//        checkedLevels = new HashSet<>(levels);
+//        checkedThreads = new HashSet<>(threads);
+//        checkedAuthors = new HashSet<>(authors);
+//
+//        tag.trim();
+//    }
+
+    private void updateTime(LogBean logBean) {
+        if (logBean == null) {
             return;
         }
-        long time = jsonFileBean.getTime();
+        long time = logBean.getTime();
         if (endTime == -1) {
             endTime = time;
         } else if (startTime > time) {
@@ -111,8 +128,8 @@ public class XELogReadControl {
             long dif = Math.abs(dataList.get(0).getTime() - time);
             int position = 0;
             for (int i = 0, length = dataList.size(); i < length; i++) {
-                JsonFileBean jsonFileBean = dataList.get(i);
-                long temp = Math.abs(jsonFileBean.getTime() - time);
+                LogBean logBean = dataList.get(i);
+                long temp = Math.abs(logBean.getTime() - time);
                 if (temp < dif) {
                     dif = temp;
                     position = i;
@@ -139,25 +156,25 @@ public class XELogReadControl {
                 path.remove(0);
             }
 
-            List<JsonFileBean> result = new ArrayList<>();
-            for (JsonFileBean jsonFileBean : dataList) {
-                if (!isContain(levels, jsonFileBean.getLevel())) {
+            List<LogBean> result = new ArrayList<>();
+            for (LogBean logBean : dataList) {
+                if (!isContain(levels, logBean.getLevel())) {
                     continue;
                 }
-                if (!isContain(threads, jsonFileBean.getThread())) {
+                if (!isContain(threads, logBean.getThread())) {
                     continue;
                 }
-                if (!isContain(authors, jsonFileBean.getAuthor())) {
+                if (!isContain(authors, logBean.getAuthor())) {
                     continue;
                 }
-                if (!isContainPath(selectPaths, jsonFileBean.getTag())) {
+                if (!isContainPath(selectPaths, logBean.getTagList())) {
                     continue;
                 }
-                if (!jsonFileBean.getContent().contains(regular)) {
+                if (!logBean.getContent().contains(regular)) {
                     continue;
                 }
-                updateTime(jsonFileBean);
-                result.add(jsonFileBean);
+                updateTime(logBean);
+                result.add(logBean);
             }
             dataLoadListener.loadFinish(result);
         });
@@ -178,20 +195,20 @@ public class XELogReadControl {
         return false;
     }
 
-    private List<JsonFileBean> readFile() {
-        StringBuilder content = new StringBuilder("["); //文件内容字符串
-        String xelog = XELogRead.getXelogDirPath() + "/log";
-        content.append(FileUtils.readFile(xelog));
-        content.append("]");
-
-        List<JsonFileBean> list = new Gson().fromJson(content.toString(), new TypeToken<List<JsonFileBean>>() {
-
-        }.getType());
-        //最后一个字符是",",所以解析出的最后一条数据是null,要删除最后一个数据
-        if (list.size() >= 1) {
-            list.remove(list.size() - 1);
-        }
-        return list;
+    private List<LogBean> readFile() {
+//        StringBuilder content = new StringBuilder("["); //文件内容字符串
+//        String xelog = XELogRead.getXelogDirPath() + "/log";
+//        content.append(FileUtils.readFile(xelog));
+//        content.append("]");
+//
+//        List<LogBean> list = new Gson().fromJson(content.toString(), new TypeToken<List<LogBean>>() {
+//
+//        }.getType());
+//        //最后一个字符是",",所以解析出的最后一条数据是null,要删除最后一个数据
+//        if (list.size() >= 1) {
+//            list.remove(list.size() - 1);
+//        }
+        return logDao.findAll();
     }
 
     public long getStartTime() {
@@ -243,9 +260,9 @@ public class XELogReadControl {
     }
 
     public interface DataLoadListener {
-        void loadFirst(List<JsonFileBean> jsonFileBeen);
+        void loadFirst(List<LogBean> jsonFileBeen);
 
-        void loadFinish(List<JsonFileBean> jsonFileBeen);
+        void loadFinish(List<LogBean> jsonFileBeen);
 
         void jumpPosition(int position);
     }

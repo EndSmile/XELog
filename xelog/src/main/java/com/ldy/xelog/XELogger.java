@@ -15,6 +15,7 @@ import com.ldy.xelog.jsonFile.JsonFilePrinter;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Created by ldy on 2017/3/10.
@@ -22,12 +23,14 @@ import java.util.List;
 public class XELogger {
     private XELogConfig config;
 
-    private Logger androidLogger;
     private Logger jsonFileLogger;
     private JsonFilePrinter jsonFilePrinter;
+    private DBPrinter dbPrinter;
+    private Logger dbLogger;
 
     public XELogger(XELogConfig config) {
         this.config = config;
+        dbPrinter = DBPrinter.instance();
     }
 
     public void v(List<String> plusTag, String message) {
@@ -63,12 +66,18 @@ public class XELogger {
                 jsonFilePrinter.setFlattener(new JsonFileFlattener(config, stackTrace, thread, getLogTag(plusTag)));
             }
             println(level, jsonFileLogger, message);
+
+            dbPrinter.setInfo(new LogFlattener(config, stackTrace, thread, getLogTag(plusTag)));
+            if (dbLogger == null) {
+                dbLogger = XLog.tag("")
+                        .printers(dbPrinter).build();
+            }
+            println(level, dbLogger, message);
         }
 
         if (config.isPrintConsole()) {
-            if (androidLogger == null) {
-                androidLogger = buildAndroidLogger(config.getXLogConfiguration(), getLogTagStr(plusTag), new AndroidPrinter());
-            }
+
+            Logger androidLogger = buildAndroidLogger(config.getXLogConfiguration(), getLogTagStr(plusTag));
             println(level, androidLogger, message);
         }
     }
@@ -93,32 +102,33 @@ public class XELogger {
         }
     }
 
-    private Logger buildAndroidLogger(LogConfiguration logConfiguration, String tag, Printer... printer) {
+    private Logger.Builder builder;
 
-        if (logConfiguration == null) {
-            logConfiguration = new LogConfiguration.Builder().build();
-        }
+    private Logger buildAndroidLogger(LogConfiguration logConfiguration, String tag) {
+        if (builder == null) {
+            if (logConfiguration == null) {
+                logConfiguration = new LogConfiguration.Builder().build();
+            }
 
-        Logger.Builder builder = new Logger.Builder();
-        builder.logLevel(logConfiguration.logLevel)
-                .tag(logConfiguration.tag)
-                .jsonFormatter(logConfiguration.jsonFormatter)
-                .xmlFormatter(logConfiguration.xmlFormatter)
-                .throwableFormatter(logConfiguration.throwableFormatter)
-                .threadFormatter(logConfiguration.threadFormatter)
-                .stackTraceFormatter(logConfiguration.stackTraceFormatter)
-                .borderFormatter(logConfiguration.borderFormatter);
-        if (logConfiguration.withStackTrace) {
-            builder.st(logConfiguration.stackTraceDepth);
-        }
-        if (logConfiguration.withThread) {
-            builder.t();
-        }
-        if (printer != null) {
-            builder.printers(printer);
-        }
-        if (tag == null) {
-            tag = XELogConfig.DEFAULT_TAG;
+            builder = new Logger.Builder();
+            builder.logLevel(logConfiguration.logLevel)
+                    .tag(logConfiguration.tag)
+                    .jsonFormatter(logConfiguration.jsonFormatter)
+                    .xmlFormatter(logConfiguration.xmlFormatter)
+                    .throwableFormatter(logConfiguration.throwableFormatter)
+                    .threadFormatter(logConfiguration.threadFormatter)
+                    .stackTraceFormatter(logConfiguration.stackTraceFormatter)
+                    .borderFormatter(logConfiguration.borderFormatter);
+            if (logConfiguration.withStackTrace) {
+                builder.st(logConfiguration.stackTraceDepth);
+            }
+            if (logConfiguration.withThread) {
+                builder.t();
+            }
+            builder.printers(new AndroidPrinter());
+            if (tag == null) {
+                tag = XELogConfig.DEFAULT_TAG;
+            }
         }
         builder.tag(tag);
         return builder.build();
@@ -151,4 +161,5 @@ public class XELogger {
         return !(config.isPrintConsole() && XELog.initParams.printConsole
                 || config.isPrintJsonFile() && XELog.initParams.printJsonFile);
     }
+
 }
