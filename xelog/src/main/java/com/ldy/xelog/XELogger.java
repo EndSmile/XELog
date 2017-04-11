@@ -56,16 +56,16 @@ public class XELogger {
         }
 
         if (config.isPrintJsonFile()) {
-            if (jsonFileLogger == null) {
-                jsonFilePrinter = new JsonFilePrinter.Builder(XELog.getFileDir())
-                        .logFlattener(new JsonFileFlattener(config, stackTrace, thread, getLogTag(plusTag)))
-                        .build();
-                jsonFileLogger = XLog.tag("")
-                        .printers(jsonFilePrinter).build();
-            } else {
-                jsonFilePrinter.setFlattener(new JsonFileFlattener(config, stackTrace, thread, getLogTag(plusTag)));
-            }
-            println(level, jsonFileLogger, message);
+//            if (jsonFileLogger == null) {
+//                jsonFilePrinter = new JsonFilePrinter.Builder(XELog.getFileDir())
+//                        .logFlattener(new JsonFileFlattener(config, stackTrace, thread, getLogTag(plusTag)))
+//                        .build();
+//                jsonFileLogger = XLog.tag("")
+//                        .printers(jsonFilePrinter).build();
+//            } else {
+//                jsonFilePrinter.setFlattener(new JsonFileFlattener(config, stackTrace, thread, getLogTag(plusTag)));
+//            }
+//            println(level, jsonFileLogger, message);
 
             dbPrinter.setInfo(new LogFlattener(config, stackTrace, thread, getLogTag(plusTag)));
             if (dbLogger == null) {
