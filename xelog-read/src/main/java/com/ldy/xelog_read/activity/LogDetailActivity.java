@@ -24,6 +24,8 @@ public class LogDetailActivity extends XELogReadBaseActivity {
     private TextView tvStackTrace;
     private LogDetailItem liContent;
     private LogDetailItem liAuthor;
+    private LogDetailItem liExtra1;
+    private LogDetailItem liExtra2;
 
     @Override
     protected void attachView(@Nullable Bundle savedInstanceState) {
@@ -42,6 +44,8 @@ public class LogDetailActivity extends XELogReadBaseActivity {
         liRemarks = ((LogDetailItem) findViewById(R.id.logDetailItem_remarks));
         liSummary = ((LogDetailItem) findViewById(R.id.logDetailItem_summary));
         liContent = ((LogDetailItem) findViewById(R.id.logDetailItem_content));
+        liExtra1 = ((LogDetailItem) findViewById(R.id.logDetailItem_extra1));
+        liExtra2 = ((LogDetailItem) findViewById(R.id.logDetailItem_extra2));
         tvStackTrace = ((TextView) findViewById(R.id.tv_stackTrace));
 
         LogBean logBean = fromIntent();
@@ -54,6 +58,8 @@ public class LogDetailActivity extends XELogReadBaseActivity {
         liSummary.setContent(logBean.getSummary());
         liContent.setContent(logBean.getContent());
         tvStackTrace.setText(logBean.getStackTrace());
+        liExtra1.setContent(logBean.getExtra1());
+        liExtra2.setContent(logBean.getExtra2());
     }
 
     public static void navigation(Activity activity, LogBean logBean) {

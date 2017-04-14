@@ -92,6 +92,14 @@ public class XELogConfig {
         return null;
     }
 
+    public String getExtra1(){
+        return null;
+    }
+
+    public String getExtra2(){
+        return null;
+    }
+
     public boolean isPrintConsole() {
         return true;
     }

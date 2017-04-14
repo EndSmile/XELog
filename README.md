@@ -11,21 +11,23 @@
 ### 使用
 ```
 //日志打印库
-compile 'com.ldy:xelog:0.3.0'
+compile 'com.ldy:xelog:0.3.1'
 //日志读取库
-compile 'com.ldy:xelog-read:0.3.0'
+compile 'com.ldy:xelog-read:0.3.1'
 //okhttp日志拦截器，使用xelog实现
-compile 'com.ldy:xelog-okhttp-interceptor:0.3.0'
+compile 'com.ldy:xelog-okhttp-interceptor:0.3.1'
 ```
 
 ### todoList
 
  1. tag树宽度计算修复
  2. tag树折叠
- 3. 根据不同level改变颜色
+ 3. 根据不同level改变颜色（现已完成error颜色改变）
  4. 根据调用栈信息解析出调用者的模块信息
- 5. 程序异常时打印更多的信息
- 6. ...
+ 5. 程序异常时打印更多的信息（包括修复现有异常捕捉bug）
+ 6. 时间筛选（时间筛选方式更新为选定开始和结束时间，而不是跳转到某个时间）
+ 7. 日志删除，提供多选，全选的方式删除日志
+ 8. ...
 
  
 

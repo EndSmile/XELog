@@ -2,6 +2,7 @@ package com.ldy.xelog_read.widget;
 
 import android.content.Context;
 import android.content.res.TypedArray;
+import android.text.TextUtils;
 import android.util.AttributeSet;
 import android.view.LayoutInflater;
 import android.widget.FrameLayout;
@@ -51,6 +52,10 @@ public class LogDetailItem extends FrameLayout {
     }
 
     public void setContent(String content) {
+        if (TextUtils.isEmpty(content)){
+            setVisibility(GONE);
+            return;
+        }
         tvContent.setText(content);
     }
 }

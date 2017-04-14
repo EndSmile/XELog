@@ -49,6 +49,8 @@ public class LogFlattener{
         logBean.setSummary(xeLogConfig.getSummary(message));
         logBean.setContent(message);
         logBean.setTime(xeLogConfig.getTime());
+        logBean.setExtra1(xeLogConfig.getExtra1());
+        logBean.setExtra2(xeLogConfig.getExtra2());
         if (!xeLogConfig.tagSelect()){
             logBean.setTagSelect(false);
         }
