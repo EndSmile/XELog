@@ -98,6 +98,7 @@
                     android:layout_marginTop="8dp"
                     android:text="1111"
                     android:textColor="#000000"
+                    android:textIsSelectable="true"
                     android:textSize="9sp" />
             </LinearLayout>
 

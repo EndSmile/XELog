@@ -2,12 +2,10 @@ package com.ldy.xelogsample;
 
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.View;
 import android.widget.Toast;
 
-import com.ldy.xelogsample.R;
-import com.xdja.xelog.okhttp_interceptor.OkHttpLogInterceptor;
+import com.ldy.xelog.okhttp_interceptor.OkHttpLogInterceptor;
 
 import java.io.IOException;
 

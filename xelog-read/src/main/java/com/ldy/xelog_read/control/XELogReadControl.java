@@ -21,6 +21,7 @@ import java.util.concurrent.Executors;
  * Created by ldy on 2017/3/6.
  */
 public class XELogReadControl {
+    public static final String ROOT_TAG = "xelog";
     private Context context;
 
     private long startTime;
@@ -108,7 +109,7 @@ public class XELogReadControl {
 
     private void initState() {
         logFiltrate = logDao.findAllLogFiltrate();
-        tag = new Tag("xelog-read");
+        tag = new Tag(ROOT_TAG);
         for (TagBean tagBean : logFiltrate.getTagBeans()) {
             tag.addTag(tagBean.getTagList(), tagBean.isTagSelect());
         }

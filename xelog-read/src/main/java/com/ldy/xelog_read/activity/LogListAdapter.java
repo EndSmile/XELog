@@ -50,7 +50,7 @@ class LogListAdapter extends BaseAdapter {
     public View getView(int position, View convertView, ViewGroup parent) {
         ViewHolder viewHolder;
         if (convertView == null) {
-            convertView = LayoutInflater.from(context).inflate(R.layout.item_log, null);
+            convertView = LayoutInflater.from(context).inflate(R.layout.xelog_read_item_log, null);
             viewHolder = new ViewHolder(convertView);
             convertView.setTag(viewHolder);
         } else {

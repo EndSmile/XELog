@@ -57,7 +57,7 @@ public class XELogReadActivity extends XELogReadBaseActivity {
 
     @Override
     protected void attachView(@Nullable Bundle savedInstanceState) {
-        setContentView(R.layout.activity_xelog_read);
+        setContentView(R.layout.xelog_read_activity_xelog_read);
     }
 
     @Override

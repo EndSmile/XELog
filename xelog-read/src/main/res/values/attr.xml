@@ -6,7 +6,7 @@
     </declare-styleable>
 
     <declare-styleable name="xelog_read_DateItem">
-        <attr name="date" format="integer" />
-        <attr name="dateUnit" format="string" />
+        <attr name="xelog_read_date" format="integer" />
+        <attr name="xelog_read_dateUnit" format="string" />
     </declare-styleable>
 </resources>

@@ -4,11 +4,7 @@ import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
-import android.text.TextUtils;
-import android.view.KeyEvent;
 import android.view.View;
-import android.view.ViewGroup;
-import android.widget.FrameLayout;
 import android.widget.Toast;
 
 import com.ldy.xelog_read.R;
@@ -43,7 +39,7 @@ public abstract class XELogReadBaseActivity extends AppCompatActivity{
             setSupportActionBar(toolbar);
             switch (getToolbarType()) {
                 case TOOLBAR_TYPE_BACK:
-                    toolbar.setNavigationIcon(R.drawable.ic_back);
+                    toolbar.setNavigationIcon(R.drawable.xelog_read_ic_back);
                     toolbar.setNavigationOnClickListener(new View.OnClickListener() {
                         @Override
                         public void onClick(View v) {

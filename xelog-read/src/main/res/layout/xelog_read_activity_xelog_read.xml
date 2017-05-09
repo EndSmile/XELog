@@ -3,6 +3,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    xmlns:fab="http://schemas.android.com/apk/res-auto"
     tools:context="com.ldy.xelog_read.activity.XELogReadActivity">
 
     <LinearLayout
@@ -24,7 +25,7 @@
                 android:layout_marginRight="9dp"
                 android:background="?android:selectableItemBackground"
                 android:button="@null"
-                android:drawableRight="@drawable/sel_ic_white_filtrate"
+                android:drawableRight="@drawable/xelog_read_sel_ic_white_filtrate"
                 android:paddingLeft="8dp"
                 android:paddingRight="8dp"
                 android:text="time"
@@ -54,12 +55,39 @@
                     android:layout_width="match_parent"
                     android:layout_height="1px"
                     android:background="@color/xelog_read_divider"/>
-                <com.ldy.xelog_read.widget.xListView.XListView
-                    android:id="@+id/xlv_xelog_read"
+                <FrameLayout
                     android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:divider="#cacaca"
-                    android:dividerHeight="1px" />
+                    android:layout_height="match_parent">
+                    <com.ldy.xelog_read.widget.xListView.XListView
+                        android:id="@+id/xlv_xelog_read"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:divider="#cacaca"
+                        android:dividerHeight="1px" />
+
+                    <com.github.clans.fab.FloatingActionMenu
+                        android:id="@+id/menu_red"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:paddingRight="10dp"
+                        android:paddingBottom="10dp"
+                        android:paddingLeft="10dp"
+                        fab:menu_labels_ellipsize="end"
+                        fab:menu_labels_singleLine="true"
+                        fab:menu_backgroundColor="#ccffffff"
+                        fab:menu_fab_label="Menu label">
+
+                        <com.github.clans.fab.FloatingActionButton
+                            android:id="@+id/fab_delete"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:src="@drawable/xelog_read_ic_delete"
+                            fab:fab_size="mini"
+                            fab:fab_label="Delete all log" />
+
+
+                    </com.github.clans.fab.FloatingActionMenu>
+                </FrameLayout>
             </LinearLayout>
 
             <com.ldy.xelog_read.widget.dropGroup.DropGroup
@@ -113,7 +141,7 @@
                         android:layout_width="match_parent"
                         android:layout_height="44dp"
                         android:layout_marginTop="18dp"
-                        android:background="@drawable/sel_btn_blue"
+                        android:background="@drawable/xelog_read_sel_btn_blue"
                         android:text="确定"
                         android:textSize="16sp" />
                 </LinearLayout>
@@ -167,7 +195,7 @@
             android:layout_width="match_parent"
             android:layout_height="44dp"
             android:layout_marginTop="18dp"
-            android:background="@drawable/sel_btn_blue"
+            android:background="@drawable/xelog_read_sel_btn_blue"
             android:text="确定"
             android:textSize="16sp" />
     </LinearLayout>

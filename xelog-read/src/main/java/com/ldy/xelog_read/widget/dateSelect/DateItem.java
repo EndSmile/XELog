@@ -4,7 +4,6 @@ import android.content.Context;
 import android.content.res.TypedArray;
 import android.text.InputType;
 import android.util.AttributeSet;
-import android.view.LayoutInflater;
 import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -34,10 +33,10 @@ public class DateItem extends LinearLayout {
             int n = a.getIndexCount();
             for (int i = 0; i < n; i++) {
                 int attr = a.getIndex(i);
-                if (attr == R.styleable.xelog_read_DateItem_date) {
+                if (attr == R.styleable.xelog_read_DateItem_xelog_read_date) {
                     setDateNumber(a.getInt(attr, 0));
 
-                } else if (attr == R.styleable.xelog_read_DateItem_dateUnit) {
+                } else if (attr == R.styleable.xelog_read_DateItem_xelog_read_dateUnit) {
                     setDateUnit(a.getString(attr));
                 }
             }

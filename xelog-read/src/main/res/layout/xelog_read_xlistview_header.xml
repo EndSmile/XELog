@@ -22,7 +22,7 @@
                 android:id="@+id/xlistview_header_hint_textview"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="@string/xlistview_header_hint_normal" />
+                android:text="@string/xelog_read_xlistview_header_hint_normal" />
 
 
             <TextView
@@ -30,7 +30,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="3dp"
-                android:text="@string/xlistview_header_last_time"
+                android:text="@string/xelog_read_xlistview_header_last_time"
                 android:textSize="12dp" />
 
             <!--<TextView-->
@@ -47,7 +47,7 @@
             android:layout_height="wrap_content"
             android:layout_centerVertical="true"
             android:layout_marginLeft="100dp"
-            android:src="@drawable/default_ptr_flip" />
+            android:src="@drawable/xelog_read_default_ptr_flip" />
 
 
         <com.ldy.xelog_read.widget.xListView.LoadView

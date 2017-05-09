@@ -61,7 +61,7 @@ public class XListViewHeader extends LinearLayout {
         LayoutParams lp = new LayoutParams(
                 LayoutParams.FILL_PARENT, 0);
         mContainer = (LinearLayout) LayoutInflater.from(context).inflate(
-                R.layout.xlistview_header, null);
+                R.layout.xelog_read_xlistview_header, null);
         addView(mContainer, lp);
         setGravity(Gravity.BOTTOM);
 
@@ -98,39 +98,39 @@ public class XListViewHeader extends LinearLayout {
 
         switch (state) {
             case STATE_NORMAL:
-                mArrowImageView.setImageResource(R.drawable.default_ptr_flip);
+                mArrowImageView.setImageResource(R.drawable.xelog_read_default_ptr_flip);
                 if (mState == STATE_READY) {
                     mArrowImageView.startAnimation(mRotateDownAnim);
                 }
                 if (mState == STATE_REFRESHING) {
                     mArrowImageView.clearAnimation();
                 }
-                mHintTextView.setText(R.string.xlistview_header_hint_normal);
+                mHintTextView.setText(R.string.xelog_read_xlistview_header_hint_normal);
 
                 break;
             case STATE_READY:
                 if (mState != STATE_READY) {
                     mArrowImageView.clearAnimation();
                     mArrowImageView.startAnimation(mRotateUpAnim);
-                    mHintTextView.setText(R.string.xlistview_header_hint_ready);
+                    mHintTextView.setText(R.string.xelog_read_xlistview_header_hint_ready);
                 }
                 break;
             case STATE_REFRESHING:
                 mProgressBar.startLoad();
-                mHintTextView.setText(R.string.xlistview_header_hint_loading);
+                mHintTextView.setText(R.string.xelog_read_xlistview_header_hint_loading);
                 break;
             case STATE_SUCCESS:
                 mProgressBar.stopLoad();
-                mHintTextView.setText(R.string.xlistview_header_hint_success);
-                mArrowImageView.setImageResource(R.drawable.xlistview_success);
+                mHintTextView.setText(R.string.xelog_read_xlistview_header_hint_success);
+                mArrowImageView.setImageResource(R.drawable.xelog_read_xlistview_success);
                 SharedPreferences.Editor editor = preferences.edit();//获取编辑器
                 editor.putLong(UPDATED_AT + mId, System.currentTimeMillis());
                 editor.commit();//提交修改
                 break;
             case STATE_FRESH_FAILT:
                 mProgressBar.stopLoad();
-                mHintTextView.setText(R.string.xlistview_header_hint_failt);
-                mArrowImageView.setImageResource(R.drawable.xlistview_error);
+                mHintTextView.setText(R.string.xelog_read_xlistview_header_hint_failt);
+                mArrowImageView.setImageResource(R.drawable.xelog_read_xlistview_error);
                 SharedPreferences.Editor editor1 = preferences.edit();//获取编辑器
                 editor1.putLong(UPDATED_AT + mId, System.currentTimeMillis());
                 editor1.commit();//提交修改
@@ -206,39 +206,39 @@ public class XListViewHeader extends LinearLayout {
         long timeIntoFormat;
         String updateAtValue;
         if (lastUpdateTime == -1) {
-            updateAtValue = getResources().getString(R.string.not_updated_yet);
+            updateAtValue = getResources().getString(R.string.xelog_read_not_updated_yet);
         } else if (timePassed < 0) {
-            updateAtValue = getResources().getString(R.string.time_error);
+            updateAtValue = getResources().getString(R.string.xelog_read_time_error);
         } else if (timePassed < ONE_MINUTE) {
-            updateAtValue = getResources().getString(R.string.updated_just_now);
+            updateAtValue = getResources().getString(R.string.xelog_read_updated_just_now);
         } else if (timePassed < ONE_HOUR) {
             timeIntoFormat = timePassed / ONE_MINUTE;
             String value = timeIntoFormat + "分钟";
-            updateAtValue = String.format(getResources().getString(R.string.updated_at),
+            updateAtValue = String.format(getResources().getString(R.string.xelog_read_updated_at),
 
                     value);
         } else if (timePassed < ONE_DAY) {
             timeIntoFormat = timePassed / ONE_HOUR;
             String value = timeIntoFormat + "小时";
-            updateAtValue = String.format(getResources().getString(R.string.updated_at),
+            updateAtValue = String.format(getResources().getString(R.string.xelog_read_updated_at),
 
                     value);
         } else if (timePassed < ONE_MONTH) {
             timeIntoFormat = timePassed / ONE_DAY;
             String value = timeIntoFormat + "天";
-            updateAtValue = String.format(getResources().getString(R.string.updated_at),
+            updateAtValue = String.format(getResources().getString(R.string.xelog_read_updated_at),
 
                     value);
         } else if (timePassed < ONE_YEAR) {
             timeIntoFormat = timePassed / ONE_MONTH;
             String value = timeIntoFormat + "个月";
-            updateAtValue = String.format(getResources().getString(R.string.updated_at),
+            updateAtValue = String.format(getResources().getString(R.string.xelog_read_updated_at),
 
                     value);
         } else {
             timeIntoFormat = timePassed / ONE_YEAR;
             String value = timeIntoFormat + "年";
-            updateAtValue = String.format(getResources().getString(R.string.updated_at),
+            updateAtValue = String.format(getResources().getString(R.string.xelog_read_updated_at),
 
                     value);
         }

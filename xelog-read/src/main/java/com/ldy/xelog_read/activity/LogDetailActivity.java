@@ -29,7 +29,7 @@ public class LogDetailActivity extends XELogReadBaseActivity {
 
     @Override
     protected void attachView(@Nullable Bundle savedInstanceState) {
-        setContentView(R.layout.activity_log_detail);
+        setContentView(R.layout.xelog_read_activity_log_detail);
     }
 
     @Override

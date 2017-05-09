@@ -42,7 +42,7 @@ public class LoadView extends ImageView {
 
     private void init() {
         setScaleType(ScaleType.MATRIX);
-        Bitmap bitmap = BitmapFactory.decodeResource(getResources(), R.drawable.loading);
+        Bitmap bitmap = BitmapFactory.decodeResource(getResources(), R.drawable.xelog_read_loading);
         setImageBitmap(bitmap);
         width = bitmap.getWidth() / 2;
         height = bitmap.getHeight() / 2;
