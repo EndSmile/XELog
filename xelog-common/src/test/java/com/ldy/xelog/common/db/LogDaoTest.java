@@ -1,8 +1,6 @@
 package com.ldy.xelog.common.db;
 
 import com.ldy.xelog.common.BuildConfig;
-import com.ldy.xelog.common.bean.ChildTabBean;
-import com.ldy.xelog.common.bean.FiltrateParamsBean;
 import com.ldy.xelog.common.bean.LogBean;
 import com.ldy.xelog.common.XELogCommon;
 import com.ldy.xelog.common.bean.LogFiltrateBean;
@@ -14,10 +12,7 @@ import org.robolectric.RobolectricTestRunner;
 import org.robolectric.RuntimeEnvironment;
 import org.robolectric.annotation.Config;
 
-import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 import static org.junit.Assert.*;
 
@@ -59,7 +54,7 @@ public class LogDaoTest {
 
     @Test
     public void find() throws Exception {
-        logDao.delete();
+        logDao.deleteAll();
 
         LogBean logBean = new LogBean();
         logBean.setLevel("error");
@@ -87,7 +82,7 @@ public class LogDaoTest {
 
     @Test
     public void findAllLogFiltrate() throws Exception {
-        logDao.delete();
+        logDao.deleteAll();
 
         LogBean logBean = new LogBean();
         logBean.setLevel("error");

@@ -1,5 +1,7 @@
 package com.ldy.xelog_read.activity;
 
+import android.app.AlertDialog;
+import android.graphics.Color;
 import android.support.annotation.Nullable;
 import android.os.Bundle;
 import android.text.Editable;
@@ -11,6 +13,7 @@ import android.widget.SeekBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.github.clans.fab.FloatingActionButton;
 import com.ldy.xelog.common.bean.LogBean;
 import com.ldy.xelog_read.R;
 import com.ldy.xelog_read.control.XELogReadControl;
@@ -26,7 +29,7 @@ import java.util.List;
 
 public class XELogReadActivity extends XELogReadBaseActivity {
 
-    private XELogReadControl xeLogReadControl;
+    private XELogReadControl control;
     private LogListAdapter adapter;
     private XListView xlvLog;
     private LogDetailItem liStartTime;
@@ -53,6 +56,7 @@ public class XELogReadActivity extends XELogReadBaseActivity {
     private MultiSelect multiSelExtra1;
     private MultiSelect multiSelExtra2;
     private int pageNo;
+    private FloatingActionButton fabDelete;
 
 
     @Override
@@ -63,7 +67,7 @@ public class XELogReadActivity extends XELogReadBaseActivity {
     @Override
     protected void initView(@Nullable Bundle savedInstanceState) {
         bindView();
-        xeLogReadControl = new XELogReadControl(this);
+        control = new XELogReadControl(this);
         dataLoadListener = new XELogReadControl.DataLoadListener() {
             @Override
             public void loadFirst(List<LogBean> dataList) {
@@ -91,13 +95,13 @@ public class XELogReadActivity extends XELogReadBaseActivity {
             @Override
             public void jumpPosition(int position) {
                 runOnUiThread(() -> {
-                    msSelect.setTime(xeLogReadControl.getCheckedTime());
+                    msSelect.setTime(control.getCheckedTime());
                     xlvLog.setSelection(adapter.getRealPosition(position));
                     dropGroup.fold(true);
                 });
             }
         };
-        xeLogReadControl.init(dataLoadListener);
+        control.init(dataLoadListener);
 
         xlvLog.setOnItemClickListener((parent, view, position, id) ->
                 LogDetailActivity.navigation(XELogReadActivity.this, adapter.getJsonFileBean(position - 1)));
@@ -114,28 +118,28 @@ public class XELogReadActivity extends XELogReadBaseActivity {
     }
 
     private void initTagTree() {
-        tagTree.setTag(xeLogReadControl.getTag());
+        tagTree.setTag(control.getTag());
     }
 
     private void initMultiSelFiltrate() {
-        multiSelLevel.setContent("level:", xeLogReadControl.getLevels(), xeLogReadControl.getCheckedLevels());
-        multiSelAuthor.setContent("author:", xeLogReadControl.getAuthors(), xeLogReadControl.getCheckedAuthors());
-        multiSelThread.setContent("thread:", xeLogReadControl.getThreads(), xeLogReadControl.getCheckedThreads());
-        multiSelPackage.setContent("package:", xeLogReadControl.getPackageNames(), xeLogReadControl.getCheckedPackage());
-        multiSelExtra1.setContent("extra1:", xeLogReadControl.getExtra1s(), xeLogReadControl.getExtra1s());
-        multiSelExtra2.setContent("extra2:", xeLogReadControl.getExtra2s(), xeLogReadControl.getCheckedExtra2s());
+        multiSelLevel.setContent("level:", control.getLevels(), control.getCheckedLevels());
+        multiSelAuthor.setContent("author:", control.getAuthors(), control.getCheckedAuthors());
+        multiSelThread.setContent("thread:", control.getThreads(), control.getCheckedThreads());
+        multiSelPackage.setContent("package:", control.getPackageNames(), control.getCheckedPackage());
+        multiSelExtra1.setContent("extra1:", control.getExtra1s(), control.getExtra1s());
+        multiSelExtra2.setContent("extra2:", control.getExtra2s(), control.getCheckedExtra2s());
     }
 
     private void initTimeFiltrate() {
         final SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd\nHH:mm:ss.SSS");
 
-        startTime = xeLogReadControl.getStartTime();
-        endTime = xeLogReadControl.getEndTime();
+        startTime = control.getStartTime();
+        endTime = control.getEndTime();
         unitTime = (endTime - startTime) / 100;
 
         tvStartTime.setText(simpleDateFormat.format(endTime));
         tvEndTime.setText(simpleDateFormat.format(startTime));
-        msSelect.setTime(xeLogReadControl.getCheckedTime());
+        msSelect.setTime(control.getCheckedTime());
         seekBarTime.setProgress(0);
     }
 
@@ -157,6 +161,7 @@ public class XELogReadActivity extends XELogReadBaseActivity {
         btnFiletrate = (Button) findViewById(R.id.btn_xelog_read_filtrate_certain);
         tagTree = (TagTree) findViewById(R.id.tagTree_xelog_read);
         edtStringFiltrate = (EditText) findViewById(R.id.edt_xelog_read_string_filtrate);
+        fabDelete = ((FloatingActionButton) findViewById(R.id.fab_delete));
 
         seekBarTime.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
@@ -180,7 +185,7 @@ public class XELogReadActivity extends XELogReadBaseActivity {
         });
         btnTimeCertain.setOnClickListener(v -> {
             long time = msSelect.getTime();
-            xeLogReadControl.jump2Time(time);
+            control.jump2Time(time);
         });
 
         btnFiletrate.setOnClickListener((view) -> filtrate(0));
@@ -209,7 +214,7 @@ public class XELogReadActivity extends XELogReadBaseActivity {
         xlvLog.setXListViewListener(new XListView.IXListViewListener() {
             @Override
             public void onRefresh() {
-                xeLogReadControl.init(dataLoadListener);
+                control.init(dataLoadListener);
             }
 
             @Override
@@ -218,11 +223,22 @@ public class XELogReadActivity extends XELogReadBaseActivity {
                 filtrate(pageNo + 1);
             }
         });
+
+        fabDelete.setOnClickListener(v -> {
+            AlertDialog alertDialog = new AlertDialog.Builder(XELogReadActivity.this)
+                    .setMessage(R.string.xelog_read_verify_delete)
+                    .setPositiveButton(R.string.xelog_read_verify, (dialog, which) -> {
+                        control.deleteAllLog();
+                    }).show();
+            TextView message = (TextView) alertDialog.findViewById(android.R.id.message);
+            if (message != null)
+                message.setTextColor(Color.BLACK);
+        });
     }
 
     private void filtrate(int pageNo) {
         this.pageNo = pageNo;
-        xeLogReadControl.filtrate(pageNo, multiSelLevel.getSelect()
+        control.filtrate(pageNo, multiSelLevel.getSelect()
                 , multiSelThread.getSelect(), multiSelAuthor.getSelect(), multiSelPackage.getSelect(), multiSelExtra1.getSelect(),
                 multiSelExtra2.getSelect(), edtStringFiltrate.getText().toString());
     }

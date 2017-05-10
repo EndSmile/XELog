@@ -24,7 +24,7 @@ import java.util.Set;
  * log的数据库相关操作，分为一个主表和
  * {@link #PACKAGE_NAME},{@link #LEVEL},{@link #THREAD},{@link #STACK_TRACE},
  * {@link #AUTHOR},{@link #REMARKS},{@link #SUMMARY},{@link #TAG},
- * {@link #EXTRA_1},{@link #EXTRA_2},{@link #SUMMARY},{@link #TAG}共计12个子表。</p>
+ * {@link #EXTRA_1},{@link #EXTRA_2}共计10个子表。</p>
  * 每个子表的结构均为{id,text},其中{@link #TAG}表较为特殊，多出了{@link #TAG_SELECT}字段，
  * 代表这个tag是否默认被选中，值为非0时代表选中</p>
  *
@@ -49,6 +49,21 @@ public class LogDao {
     public static final String CONTENT = "content";
     public static final String EXTRA_1 = "extra1";
     public static final String EXTRA_2 = "extra2";
+
+    private static List<String> childTabNameList = new ArrayList<>();
+
+    static {
+        childTabNameList.add(PACKAGE_NAME);
+        childTabNameList.add(LEVEL);
+        childTabNameList.add(THREAD);
+        childTabNameList.add(STACK_TRACE);
+        childTabNameList.add(AUTHOR);
+        childTabNameList.add(REMARKS);
+        childTabNameList.add(SUMMARY);
+        childTabNameList.add(TAG);
+        childTabNameList.add(EXTRA_1);
+        childTabNameList.add(EXTRA_2);
+    }
 
     public static LogDao instance() {
         return Instance.logDao;
@@ -84,24 +99,20 @@ public class LogDao {
                 ");";
         createSqlList.add(logCreateSql);
 
-        createSqlList.add(getChildCreateSql(PACKAGE_NAME));
-        createSqlList.add(getChildCreateSql(LEVEL));
-        createSqlList.add(getChildCreateSql(THREAD));
-        createSqlList.add(getChildCreateSql(STACK_TRACE));
-        createSqlList.add(getChildCreateSql(AUTHOR));
-        createSqlList.add(getChildCreateSql(REMARKS));
-        createSqlList.add(getChildCreateSql(SUMMARY));
-        createSqlList.add(getChildCreateSql(EXTRA_1));
-        createSqlList.add(getChildCreateSql(EXTRA_2));
-
-        String tagCreateSql = "CREATE TABLE IF NOT EXISTS "
-                + TAG
-                + " ("
-                + ID + " INTEGER PRIMARY KEY AUTOINCREMENT,"
-                + CHILD_TAB_TEXT + " TEXT UNIQUE,"
-                + TAG_SELECT + " INTEGER"
-                + ");";
-        createSqlList.add(tagCreateSql);
+        for (String childTabName:childTabNameList){
+            if (childTabName.equals(TAG)){
+                String tagCreateSql = "CREATE TABLE IF NOT EXISTS "
+                        + TAG
+                        + " ("
+                        + ID + " INTEGER PRIMARY KEY AUTOINCREMENT,"
+                        + CHILD_TAB_TEXT + " TEXT UNIQUE,"
+                        + TAG_SELECT + " INTEGER"
+                        + ");";
+                createSqlList.add(tagCreateSql);
+            }else {
+                createSqlList.add(getChildCreateSql(childTabName));
+            }
+        }
         return createSqlList;
     }
 
@@ -396,9 +407,15 @@ public class LogDao {
 
     //===================== end 查询数据部分 =========================**/
 
-    public void delete() {
+    //===================== start 删除数据部分 =========================**/
+    public void deleteAll() {
         database.beginTransaction();
         database.execSQL("delete from " + TABLE_NAME_LOG);
+        for (String childTabName:childTabNameList){
+            database.execSQL("delete from " + childTabName);
+        }
+        childTabMap.clear();
+        childTabMapByFind.clear();
         database.setTransactionSuccessful();
         database.endTransaction();
     }

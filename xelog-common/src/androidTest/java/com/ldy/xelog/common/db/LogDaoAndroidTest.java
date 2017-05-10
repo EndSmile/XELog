@@ -27,7 +27,7 @@ public class LogDaoAndroidTest {
     }
     @Test
     public void addData() throws Exception {
-        logDao.delete();
+        logDao.deleteAll();
         LogBean logBean = new LogBean();
         logBean.setLevel("error");
         logBean.setTag("net");

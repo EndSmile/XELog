@@ -89,7 +89,15 @@ public class XELogReadControl {
             dataList = logDao.find(filtrateParamsBean);
             dataLoadListener.loadFinish(dataList);
         });
+    }
 
+    public void deleteAllLog(){
+        executor.execute(()->{
+            logDao.deleteAll();
+            init(dataLoadListener);
+//            dataList = new ArrayList<>();
+//            dataLoadListener.loadFinish(dataList);
+        });
     }
 
     @NonNull

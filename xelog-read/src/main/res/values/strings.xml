@@ -12,4 +12,8 @@
     <string name="xelog_read_updated_at">上次更新于%1$s前</string>
     <string name="xelog_read_updated_just_now">刚刚更新</string>
     <string name="xelog_read_time_error">时间有问题</string>
+
+    <string name="xelog_read_verify_delete">确认要删除全部日志吗？</string>
+    <string name="xelog_read_verify">确认</string>
+    <string name="xelog_read_close">关闭</string>
 </resources>
