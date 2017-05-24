@@ -9,13 +9,13 @@ import android.content.Context;
 public class XELogCommon {
     private static final String DB_NAME = "xelog";
 
-    public static String xelogDirPath;
+    public static String dirPath;
     public static Context context;
 
-    public static String getDBDirPath(){
-        if (xelogDirPath==null){
+    public static String getDBPath(){
+        if (dirPath ==null){
             return DB_NAME;
         }
-        return xelogDirPath+"/"+DB_NAME;
+        return dirPath +"/"+DB_NAME;
     }
 }

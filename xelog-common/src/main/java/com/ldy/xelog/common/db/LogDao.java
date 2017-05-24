@@ -4,6 +4,7 @@ import android.content.ContentValues;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.text.TextUtils;
+import android.util.Log;
 import android.util.SparseArray;
 
 import com.ldy.xelog.common.bean.ChildTabBean;
@@ -27,9 +28,8 @@ import java.util.Set;
  * {@link #EXTRA_1},{@link #EXTRA_2}共计10个子表。</p>
  * 每个子表的结构均为{id,text},其中{@link #TAG}表较为特殊，多出了{@link #TAG_SELECT}字段，
  * 代表这个tag是否默认被选中，值为非0时代表选中</p>
- *
+ * <p>
  * 主表用过外键连接这些子表，且列名与子表表名相同</p>
- *
  */
 public class LogDao {
     public static final String TABLE_NAME_LOG = "log";
@@ -99,8 +99,8 @@ public class LogDao {
                 ");";
         createSqlList.add(logCreateSql);
 
-        for (String childTabName:childTabNameList){
-            if (childTabName.equals(TAG)){
+        for (String childTabName : childTabNameList) {
+            if (childTabName.equals(TAG)) {
                 String tagCreateSql = "CREATE TABLE IF NOT EXISTS "
                         + TAG
                         + " ("
@@ -109,7 +109,7 @@ public class LogDao {
                         + TAG_SELECT + " INTEGER"
                         + ");";
                 createSqlList.add(tagCreateSql);
-            }else {
+            } else {
                 createSqlList.add(getChildCreateSql(childTabName));
             }
         }
@@ -135,6 +135,7 @@ public class LogDao {
     /**
      * 增加一条数据，更新{@link #TABLE_NAME_LOG}表，并更新相关子表，子表内的数据不重复，主表在引用子表时通过
      * {@link #ID}引用
+     *
      * @param logBean 插入的数据
      */
     public void addData(LogBean logBean) {
@@ -207,9 +208,10 @@ public class LogDao {
                 values.put(TAG_SELECT, tagSelect ? 1 : 0);
             }
             database.insert(childTabName, null, values);
-            Cursor cursor = database.rawQuery("select * from " + childTabName + " where " + CHILD_TAB_TEXT + " = '" + childItem + "'", null);
+            Cursor cursor = database.rawQuery("select * from " + childTabName + " where " + CHILD_TAB_TEXT + " = '" + replaceQuote(childItem) + "'", null);
             updateMap(childMap, cursor);
             cursor.close();
+            Log.d(TAG, childItem);
             return childMap.get(childItem);
         }
     }
@@ -313,7 +315,7 @@ public class LogDao {
             sqlBuilder.append(CONTENT);
             sqlBuilder.append(" like ");
             sqlBuilder.append(" '%");
-            sqlBuilder.append(filtrateParamsBean.getMatchText());
+            sqlBuilder.append(sqliteEscape(filtrateParamsBean.getMatchText()));
             sqlBuilder.append("%' ");
         } else if (sqlBuilder.length() != length) {
             //如果添加筛选条件，删除最后的"and"
@@ -324,10 +326,10 @@ public class LogDao {
         }
 
         //查找按添加入表顺序的倒序
-        sqlBuilder.append(" order by "+ID+" desc ");
+        sqlBuilder.append(" order by " + ID + " desc ");
         sqlBuilder.append(" limit ");
         //// TODO: 2017/4/11 为了避免分页时因数据库更新导致的数据错误，每次查找时更新全部数据
-        sqlBuilder.append(FiltrateParamsBean.pageSize * (filtrateParamsBean.getPageNo()+1));
+        sqlBuilder.append(FiltrateParamsBean.pageSize * (filtrateParamsBean.getPageNo() + 1));
         sqlBuilder.append(" offset ");
 //        sqlBuilder.append(filtrateParamsBean.getPageNo() * FiltrateParamsBean.pageSize);
         sqlBuilder.append(0);
@@ -411,12 +413,32 @@ public class LogDao {
     public void deleteAll() {
         database.beginTransaction();
         database.execSQL("delete from " + TABLE_NAME_LOG);
-        for (String childTabName:childTabNameList){
+        for (String childTabName : childTabNameList) {
             database.execSQL("delete from " + childTabName);
         }
         childTabMap.clear();
         childTabMapByFind.clear();
         database.setTransactionSuccessful();
         database.endTransaction();
+    }
+    //===================== end 删除数据部分 =========================**/
+
+
+    public static String sqliteEscape(String keyWord) {
+        keyWord = keyWord.replace("/", "//");
+        keyWord = keyWord.replace("'", "''");
+        keyWord = keyWord.replace("[", "/[");
+        keyWord = keyWord.replace("]", "/]");
+        keyWord = keyWord.replace("%", "/%");
+        keyWord = keyWord.replace("&", "/&");
+        keyWord = keyWord.replace("_", "/_");
+        keyWord = keyWord.replace("(", "/(");
+        keyWord = keyWord.replace(")", "/)");
+        return keyWord;
+    }
+
+    public static String replaceQuote(String keyWord) {
+        return keyWord.replace("'", "''");
+
     }
 }

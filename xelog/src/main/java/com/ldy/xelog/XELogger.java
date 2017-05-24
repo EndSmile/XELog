@@ -8,41 +8,51 @@ import com.elvishew.xlog.XLog;
 import com.elvishew.xlog.formatter.thread.DefaultThreadFormatter;
 import com.elvishew.xlog.internal.util.StackTraceUtil;
 import com.elvishew.xlog.printer.AndroidPrinter;
-import com.elvishew.xlog.printer.Printer;
 import com.ldy.xelog.config.XELogConfig;
-import com.ldy.xelog.jsonFile.JsonFileFlattener;
 import com.ldy.xelog.jsonFile.JsonFilePrinter;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 /**
  * Created by ldy on 2017/3/10.
  */
 public class XELogger {
-    private XELogConfig config;
+
+    private static XELogger instance = new XELogger();
 
     private Logger jsonFileLogger;
     private JsonFilePrinter jsonFilePrinter;
     private DBPrinter dbPrinter;
     private Logger dbLogger;
 
-    public XELogger(XELogConfig config) {
-        this.config = config;
+    private XELogger() {
         dbPrinter = DBPrinter.instance();
     }
 
-    public void v(List<String> plusTag, String message) {
-        println(Log.VERBOSE, plusTag, message);
+    public static XELogger getInstance() {
+        return instance;
     }
 
-    public void e(List<String> plusTag, String s) {
-        println(Log.ERROR, plusTag, s);
+    public void v(XELogConfig config, List<String> plusTag, String message) {
+        println(config,Log.VERBOSE, plusTag, message);
+    }
+    public void d(XELogConfig config, List<String> plusTag, String message) {
+        println(config,Log.DEBUG, plusTag, message);
+    }
+    public void i(XELogConfig config, List<String> plusTag, String message) {
+        println(config,Log.INFO, plusTag, message);
+    }
+    public void w(XELogConfig config, List<String> plusTag, String message) {
+        println(config,Log.WARN, plusTag, message);
     }
 
-    private void println(int level, List<String> plusTag, Object message) {
-        if (isIntercept()) {
+    public void e(XELogConfig config,List<String> plusTag, String message) {
+        println(config,Log.ERROR, plusTag, message);
+    }
+
+    public void println(XELogConfig config,int level, List<String> plusTag, Object message) {
+        if (isIntercept(config)) {
             return;
         }
 
@@ -67,7 +77,7 @@ public class XELogger {
 //            }
 //            println(level, jsonFileLogger, message);
 
-            dbPrinter.setInfo(new LogFlattener(config, stackTrace, thread, getLogTag(plusTag)));
+            dbPrinter.setInfo(new LogFlattener(config, stackTrace, thread, getLogTag(plusTag, config)));
             if (dbLogger == null) {
                 dbLogger = XLog.tag("")
                         .printers(dbPrinter).build();
@@ -77,7 +87,7 @@ public class XELogger {
 
         if (config.isPrintConsole()) {
 
-            Logger androidLogger = buildAndroidLogger(config.getXLogConfiguration(), getLogTagStr(plusTag));
+            Logger androidLogger = buildAndroidLogger(config.getXLogConfiguration(), getLogTagStr(plusTag, config));
             println(level, androidLogger, message);
         }
     }
@@ -134,8 +144,8 @@ public class XELogger {
         return builder.build();
     }
 
-    private String getLogTagStr(List<String> plusTag) {
-        List<String> fullTag = getLogTag(plusTag);
+    private String getLogTagStr(List<String> plusTag, XELogConfig config) {
+        List<String> fullTag = getLogTag(plusTag, config);
         StringBuilder builder = new StringBuilder();
         for (int i = 0, length = fullTag.size(); i < length; i++) {
             builder.append(fullTag.get(i));
@@ -146,7 +156,7 @@ public class XELogger {
         return builder.toString();
     }
 
-    private List<String> getLogTag(List<String> plusTag) {
+    private List<String> getLogTag(List<String> plusTag, XELogConfig config) {
         List<String> fullTag;
         if (plusTag != null) {
             fullTag = new ArrayList<>(config.getBaseTag());
@@ -157,7 +167,7 @@ public class XELogger {
         return fullTag;
     }
 
-    private boolean isIntercept() {
+    private boolean isIntercept(XELogConfig config) {
         return !(config.isPrintConsole() && XELog.initParams.printConsole
                 || config.isPrintJsonFile() && XELog.initParams.printJsonFile);
     }

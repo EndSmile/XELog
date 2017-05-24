@@ -1,14 +1,11 @@
 package com.ldy.xelog.config;
 
 import android.content.Context;
-import android.os.Build;
-import android.os.Environment;
 
 import com.elvishew.xlog.LogConfiguration;
 import com.ldy.xelog.XELog;
 import com.ldy.xelog.XELogger;
 
-import java.io.File;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -20,12 +17,12 @@ public class XELogConfig {
     public static final String DEFAULT_TAG = "XELog";
     public static final List<String> DEFAULT_TAG_LIST = Collections.singletonList(DEFAULT_TAG);
     protected Context context;
-    private final XELogger xeLogger;
+    protected final XELogger xeLogger;
 
     public XELogConfig() {
         XELog.assertInitialization();
         this.context = XELog.context;
-        xeLogger = new XELogger(this);
+        xeLogger = XELogger.getInstance();
     }
 
     /**
@@ -92,11 +89,11 @@ public class XELogConfig {
         return null;
     }
 
-    public String getExtra1(){
+    public String getExtra1() {
         return null;
     }
 
-    public String getExtra2(){
+    public String getExtra2() {
         return null;
     }
 
@@ -108,11 +105,51 @@ public class XELogConfig {
         return true;
     }
 
-    public void v(String message) {
-        xeLogger.v(null, message);
+    public void println(int level, String message) {
+        println(level, null, message);
     }
 
-    public void e(String string) {
-        xeLogger.e(null,string);
+    public void println(int level, List<String> plusTag, String message) {
+        xeLogger.println(this, level, plusTag, message);
+    }
+
+    public void v(String message) {
+        v(null, message);
+    }
+
+    public void v(List<String> plusTag, String message) {
+        xeLogger.v(this, plusTag, message);
+    }
+
+    public void d(String message) {
+        d(null, message);
+    }
+
+    public void d(List<String> plusTag, String message) {
+        xeLogger.d(this, plusTag, message);
+    }
+
+    public void i(String message) {
+        i(null, message);
+    }
+
+    public void i(List<String> plusTag, String message) {
+        xeLogger.i(this, plusTag, message);
+    }
+
+    public void w(String message) {
+        w(null, message);
+    }
+
+    public void w(List<String> plusTag, String message) {
+        xeLogger.w(this, plusTag, message);
+    }
+
+    public void e(String message) {
+        e(null, message);
+    }
+
+    public void e(List<String> plusTag, String message) {
+        xeLogger.e(this, plusTag, message);
     }
 }

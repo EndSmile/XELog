@@ -30,4 +30,10 @@
         android:layout_marginRight="83dp"
         android:onClick="errorLog"
         android:text="error日志" />
+
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:onClick="hugoLog"
+        android:text="hugo日志"/>
 </RelativeLayout>

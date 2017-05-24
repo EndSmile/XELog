@@ -1,1 +1,1 @@
-include ':sample', ':xelog', ':xelog-read', ':xelog-common', ':xelog-okhttp-interceptor'
+include ':sample', ':xelog', ':xelog-read', ':xelog-common', ':xelog-okhttp-interceptor',':xelog-hugo'

@@ -1,6 +1,5 @@
 package com.ldy.xelog.common.db;
 
-import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 
@@ -14,7 +13,7 @@ public class DBCreator extends SQLiteOpenHelper{
     private static final int DB_VERSION = 1;
 
     private DBCreator() {
-        super(XELogCommon.context, XELogCommon.getDBDirPath(), null, DB_VERSION);
+        super(XELogCommon.context, XELogCommon.getDBPath(), null, DB_VERSION);
     }
 
     private static class Instance{
