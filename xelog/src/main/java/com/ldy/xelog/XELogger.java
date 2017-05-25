@@ -9,7 +9,6 @@ import com.elvishew.xlog.formatter.thread.DefaultThreadFormatter;
 import com.elvishew.xlog.internal.util.StackTraceUtil;
 import com.elvishew.xlog.printer.AndroidPrinter;
 import com.ldy.xelog.config.XELogConfig;
-import com.ldy.xelog.jsonFile.JsonFilePrinter;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -21,8 +20,6 @@ public class XELogger {
 
     private static XELogger instance = new XELogger();
 
-    private Logger jsonFileLogger;
-    private JsonFilePrinter jsonFilePrinter;
     private DBPrinter dbPrinter;
     private Logger dbLogger;
 
@@ -35,23 +32,26 @@ public class XELogger {
     }
 
     public void v(XELogConfig config, List<String> plusTag, String message) {
-        println(config,Log.VERBOSE, plusTag, message);
+        println(config, Log.VERBOSE, plusTag, message);
     }
+
     public void d(XELogConfig config, List<String> plusTag, String message) {
-        println(config,Log.DEBUG, plusTag, message);
+        println(config, Log.DEBUG, plusTag, message);
     }
+
     public void i(XELogConfig config, List<String> plusTag, String message) {
-        println(config,Log.INFO, plusTag, message);
+        println(config, Log.INFO, plusTag, message);
     }
+
     public void w(XELogConfig config, List<String> plusTag, String message) {
-        println(config,Log.WARN, plusTag, message);
+        println(config, Log.WARN, plusTag, message);
     }
 
-    public void e(XELogConfig config,List<String> plusTag, String message) {
-        println(config,Log.ERROR, plusTag, message);
+    public void e(XELogConfig config, List<String> plusTag, String message) {
+        println(config, Log.ERROR, plusTag, message);
     }
 
-    public void println(XELogConfig config,int level, List<String> plusTag, Object message) {
+    public void println(XELogConfig config, int level, List<String> plusTag, Object message) {
         if (isIntercept(config)) {
             return;
         }
@@ -65,7 +65,7 @@ public class XELogger {
             thread = new DefaultThreadFormatter().format(Thread.currentThread());
         }
 
-        if (config.isPrintFile()) {
+        if (config.isPrintFile() && XELog.initParams.printFile) {
 //            if (jsonFileLogger == null) {
 //                jsonFilePrinter = new JsonFilePrinter.Builder(XELog.getFileDir())
 //                        .logFlattener(new JsonFileFlattener(config, stackTrace, thread, getLogTag(plusTag)))
@@ -85,7 +85,7 @@ public class XELogger {
             println(level, dbLogger, message);
         }
 
-        if (config.isPrintConsole()) {
+        if (config.isPrintConsole() && XELog.initParams.printConsole) {
 
             Logger androidLogger = buildAndroidLogger(config.getXLogConfiguration(), getLogTagStr(plusTag, config));
             println(level, androidLogger, message);

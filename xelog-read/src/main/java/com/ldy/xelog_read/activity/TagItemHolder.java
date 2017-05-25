@@ -38,10 +38,6 @@ public class TagItemHolder extends BaseNodeViewHolder<String> {
 
             getTreeView().selectNodeAndChildren(node,isChecked,false);
 
-//            for (TreeNode n : node.getChildren()) {
-//                getTreeView().selectNodeAndChildren(n, isChecked);
-//            }
-
             //改变其父节点
             TreeNode parentNode = node.getParent();
             while (parentNode.getParent()!=null){

@@ -14,7 +14,7 @@
         android:id="@+id/iv_item_tag_arrow"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:src="@drawable/xelog_read_ic_arrow_down" />
+        android:src="@drawable/xelog_read_ic_arrow_right" />
 
     <TextView
         android:id="@+id/tv_item_tag_value"

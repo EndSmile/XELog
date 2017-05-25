@@ -23,6 +23,8 @@ import java.util.List;
 
 public class DefaultHugoLogHandler extends XELogConfig implements IHugoLogHandler {
 
+    public static final String EXIT_METHOD_STR_START = "\u21E0 ";
+    public static final String ENTER_METHOD_STR_START = "\u21E2 ";
     private HugoXELog hugoXELog;
 
     @Override
@@ -53,6 +55,22 @@ public class DefaultHugoLogHandler extends XELogConfig implements IHugoLogHandle
     }
 
     @Override
+    public String getSummary(String msg) {
+        if (msg.startsWith(ENTER_METHOD_STR_START)) {
+            int index = msg.indexOf("(");
+            if (index != -1){
+                return msg.substring(0, index);
+            }
+        } else {
+            int index = msg.indexOf("[");
+            if (index != -1){
+                return msg.substring(0, index);
+            }
+        }
+        return super.getSummary(msg);
+    }
+
+    @Override
     public void enterMethod(HugoXELog hugoXELog, JoinPoint joinPoint) {
         this.hugoXELog = hugoXELog;
 
@@ -63,7 +81,7 @@ public class DefaultHugoLogHandler extends XELogConfig implements IHugoLogHandle
         String[] parameterNames = codeSignature.getParameterNames();
         Object[] parameterValues = joinPoint.getArgs();
 
-        StringBuilder builder = new StringBuilder("\u21E2 ");
+        StringBuilder builder = new StringBuilder(ENTER_METHOD_STR_START);
         builder.append(methodName).append('(');
         for (int i = 0; i < parameterValues.length; i++) {
             if (i > 0) {
@@ -101,7 +119,7 @@ public class DefaultHugoLogHandler extends XELogConfig implements IHugoLogHandle
         boolean hasReturnType = signature instanceof MethodSignature
                 && ((MethodSignature) signature).getReturnType() != void.class;
 
-        StringBuilder builder = new StringBuilder("\u21E0 ")
+        StringBuilder builder = new StringBuilder(EXIT_METHOD_STR_START)
                 .append(methodName)
                 .append(" [")
                 .append(lengthMillis)
