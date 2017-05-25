@@ -32,6 +32,10 @@ public @interface HugoXELog {
 
     boolean printFile() default true;
 
+    /**
+     * @return 如果返回{},则tag为{$className,$methodName}</p>
+     * 注意：所有tag会增加默认根tag{@link DefaultHugoLogHandler#DEFAULT_ROOT_TAG}
+     */
     String[] tag() default {};
 
     /**

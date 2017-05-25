@@ -14,7 +14,6 @@ import org.aspectj.lang.reflect.MethodSignature;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 
 /**
@@ -25,12 +24,13 @@ public class DefaultHugoLogHandler extends XELogConfig implements IHugoLogHandle
 
     public static final String EXIT_METHOD_STR_START = "\u21E0 ";
     public static final String ENTER_METHOD_STR_START = "\u21E2 ";
+    public static final String DEFAULT_ROOT_TAG = "hugo";
     private HugoXELog hugoXELog;
 
     @Override
     public List<String> getBaseTag() {
         ArrayList<String> list = new ArrayList<>();
-        list.add("hugo");
+        list.add(DEFAULT_ROOT_TAG);
         return list;
     }
 
