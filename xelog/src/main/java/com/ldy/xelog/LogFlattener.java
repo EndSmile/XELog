@@ -41,7 +41,6 @@ public class LogFlattener{
         LogBean logBean = new LogBean();
         logBean.setLevel(LogLevel.getLevelName(logLevel));
         logBean.setTag(this.tag);
-        logBean.setTag(xeLogConfig.getBaseTag());
         logBean.setAuthor(xeLogConfig.getAuthor());
         logBean.setPackageName(xeLogConfig.getPackageName());
         logBean.setRemarks(xeLogConfig.getRemarks(message));

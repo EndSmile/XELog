@@ -32,6 +32,7 @@ public class XELogReadControl {
     private Set<String> levels;
     private Set<String> checkedLevels;
     private Tag tag;
+    private TagTreeNode tagRootNode;
     private Set<String> authors;
     private Set<String> checkedAuthors;
     private Set<String> threads;
@@ -59,10 +60,10 @@ public class XELogReadControl {
         this.dataLoadListener = dataLoadListener;
         executor.execute(() -> {
             initState();
-            if (filtrateParamsBean==null){
+            if (filtrateParamsBean == null) {
                 filtrateParamsBean = new FiltrateParamsBean();
                 filtrateParamsBean.setTagBeans(logFiltrate.getTagBeans());
-            }else {
+            } else {
                 filtrateParamsBean.setPageNo(0);
             }
             dataList = logDao.find(filtrateParamsBean);
@@ -71,9 +72,9 @@ public class XELogReadControl {
     }
 
     public void filtrate(int pageNo
-            , List<String> levels, List<String> threads, List<String> authors,List<String> packages
-            , List<String> extra1s, List<String> extra2s,String regular) {
-        executor.execute(()->{
+            , List<String> levels, List<String> threads, List<String> authors, List<String> packages
+            , List<String> extra1s, List<String> extra2s, String regular) {
+        executor.execute(() -> {
             filtrateParamsBean = new FiltrateParamsBean();
             filtrateParamsBean.setLevels(LogFiltrateBean.getChildTabSet(logFiltrate.getLevels(), levels));
             filtrateParamsBean.setAuthors(LogFiltrateBean.getChildTabSet(logFiltrate.getAuthors(), authors));
@@ -91,8 +92,8 @@ public class XELogReadControl {
         });
     }
 
-    public void deleteAllLog(){
-        executor.execute(()->{
+    public void deleteAllLog() {
+        executor.execute(() -> {
             logDao.deleteAll();
             init(dataLoadListener);
 //            dataList = new ArrayList<>();
@@ -103,14 +104,16 @@ public class XELogReadControl {
     @NonNull
     private ArrayList<String> getTagStrList() {
         //view的check改变时tag会被改变
-        List<List<String>> selectPaths = tag.getAllPath();
-        for (List<String> path : selectPaths) {
-            //移除统一添加的根节点
-            path.remove(0);
-        }
+//        List<List<String>> selectPaths = tag.getAllPath();
+        List temp = tagRootNode.getAllSelectedPath();
+        List<List<String>> selectPaths = temp;
+//        for (List<String> path : selectPaths) {
+//            //移除统一添加的根节点
+//            path.remove(0);
+//        }
         ArrayList<String> selectStrPath = new ArrayList<>();
-        for (List<String> path:selectPaths){
-            selectStrPath.add(LogBean.getStrByList(path,LogBean.TAG_SEPARATOR));
+        for (List<String> path : selectPaths) {
+            selectStrPath.add(LogBean.getStrByList(path, LogBean.TAG_SEPARATOR));
         }
         return selectStrPath;
     }
@@ -118,10 +121,13 @@ public class XELogReadControl {
     private void initState() {
         logFiltrate = logDao.findAllLogFiltrate();
         tag = new Tag(ROOT_TAG);
+        tagRootNode = TagTreeNode.root();
         for (TagBean tagBean : logFiltrate.getTagBeans()) {
             tag.addTag(tagBean.getTagList(), tagBean.isTagSelect());
+            tagRootNode.addChildByValuePath(tagBean.getTagList(), tagBean.isTagSelect());
         }
         tag.trim();
+        tagRootNode.trim();
 
         packageNames = LogFiltrateBean.getTextSet(logFiltrate.getPackageNames());
         levels = LogFiltrateBean.getTextSet(logFiltrate.getLevels());
@@ -176,77 +182,6 @@ public class XELogReadControl {
             checkedTime = dataList.get(position).getTime();
             dataLoadListener.jumpPosition(position);
         });
-    }
-
-    public void filtrate(List<String> levels,
-                         List<String> threads,
-                         List<String> authors,
-                         String regular) {
-        startTime = -1;
-        endTime = -1;
-
-        executor.execute(() -> {
-            //view的check改变时tag会被改变
-            List<List<String>> selectPaths = tag.getAllPath();
-
-            for (List<String> path : selectPaths) {
-                //移除统一添加的根节点
-                path.remove(0);
-            }
-
-            List<LogBean> result = new ArrayList<>();
-            for (LogBean logBean : dataList) {
-                if (!isContain(levels, logBean.getLevel())) {
-                    continue;
-                }
-                if (!isContain(threads, logBean.getThread())) {
-                    continue;
-                }
-                if (!isContain(authors, logBean.getAuthor())) {
-                    continue;
-                }
-                if (!isContainPath(selectPaths, logBean.getTagList())) {
-                    continue;
-                }
-                if (!logBean.getContent().contains(regular)) {
-                    continue;
-                }
-                updateTime(logBean);
-                result.add(logBean);
-            }
-            dataLoadListener.loadFinish(result);
-        });
-
-
-    }
-
-    private boolean isContain(List<String> list, String item) {
-        return list.contains(item);
-    }
-
-    private boolean isContainPath(List<List<String>> selectPaths, List<String> tag) {
-        for (List<String> path : selectPaths) {
-            if (path.containsAll(tag)) {
-                return true;
-            }
-        }
-        return false;
-    }
-
-    private List<LogBean> readFile() {
-//        StringBuilder content = new StringBuilder("["); //文件内容字符串
-//        String xelog = XELogRead.getXelogDirPath() + "/log";
-//        content.append(FileUtils.readFile(xelog));
-//        content.append("]");
-//
-//        List<LogBean> list = new Gson().fromJson(content.toString(), new TypeToken<List<LogBean>>() {
-//
-//        }.getType());
-//        //最后一个字符是",",所以解析出的最后一条数据是null,要删除最后一个数据
-//        if (list.size() >= 1) {
-//            list.remove(list.size() - 1);
-//        }
-        return logDao.findAll();
     }
 
     public long getStartTime() {
@@ -311,6 +246,10 @@ public class XELogReadControl {
 
     public Set<String> getCheckedExtra2s() {
         return checkedExtra2s;
+    }
+
+    public TagTreeNode getTagRootNode() {
+        return tagRootNode;
     }
 
     public interface DataLoadListener {

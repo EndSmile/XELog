@@ -6,9 +6,11 @@ import android.support.annotation.Nullable;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.EditText;
+import android.widget.FrameLayout;
 import android.widget.SeekBar;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -16,8 +18,10 @@ import android.widget.Toast;
 import com.github.clans.fab.FloatingActionButton;
 import com.ldy.xelog.common.bean.LogBean;
 import com.ldy.xelog_read.R;
+import com.ldy.xelog_read.control.TagTreeNode;
 import com.ldy.xelog_read.control.XELogReadControl;
 import com.ldy.xelog_read.widget.LogDetailItem;
+import com.ldy.xelog_read.widget.androidtreeview.view.AndroidTreeView;
 import com.ldy.xelog_read.widget.dateSelect.MsSelect;
 import com.ldy.xelog_read.widget.dropGroup.DropGroup;
 import com.ldy.xelog_read.widget.multiSelect.MultiSelect;
@@ -25,6 +29,7 @@ import com.ldy.xelog_read.widget.tagtree.TagTree;
 import com.ldy.xelog_read.widget.xListView.XListView;
 
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.List;
 
 public class XELogReadActivity extends XELogReadBaseActivity {
@@ -57,6 +62,7 @@ public class XELogReadActivity extends XELogReadBaseActivity {
     private MultiSelect multiSelExtra2;
     private int pageNo;
     private FloatingActionButton fabDelete;
+    private FrameLayout flTagContainer;
 
 
     @Override
@@ -75,7 +81,8 @@ public class XELogReadActivity extends XELogReadBaseActivity {
                     xlvLog.stopRefresh(true);
                     initTimeFiltrate();
                     initMultiSelFiltrate();
-                    initTagTree();
+//                    initTagTree();
+                    initTree();
                     setData(dataList);
                 });
             }
@@ -162,6 +169,8 @@ public class XELogReadActivity extends XELogReadBaseActivity {
         tagTree = (TagTree) findViewById(R.id.tagTree_xelog_read);
         edtStringFiltrate = (EditText) findViewById(R.id.edt_xelog_read_string_filtrate);
         fabDelete = ((FloatingActionButton) findViewById(R.id.fab_delete));
+        flTagContainer = ((FrameLayout) findViewById(R.id.fl_xelog_read_tag_container));
+
 
         seekBarTime.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
@@ -234,6 +243,22 @@ public class XELogReadActivity extends XELogReadBaseActivity {
             if (message != null)
                 message.setTextColor(Color.BLACK);
         });
+
+    }
+
+    private void initTree() {
+        flTagContainer.removeAllViews();
+
+        TagTreeNode root = control.getTagRootNode();
+
+        List<TagTreeNode> allNode = root.getAllNode(new ArrayList<>());
+        for (TagTreeNode childNode:allNode){
+            childNode.setViewHolder(new TagItemHolder(this, ()-> filtrate(0)));
+        }
+        AndroidTreeView tView = new AndroidTreeView(this, root);
+        tView.setSelectionModeEnabled(true);
+        tView.setDefaultAnimation(true);
+        flTagContainer.addView(tView.getView(), ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT);
     }
 
     private void filtrate(int pageNo) {

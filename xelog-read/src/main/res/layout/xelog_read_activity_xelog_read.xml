@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <android.support.v4.widget.DrawerLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
     tools:context="com.ldy.xelog_read.activity.XELogReadActivity">
 
     <LinearLayout
@@ -36,28 +36,32 @@
         <FrameLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent">
+
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:orientation="vertical"
                 android:focusable="true"
-                android:focusableInTouchMode="true">
+                android:focusableInTouchMode="true"
+                android:orientation="vertical">
+
                 <EditText
                     android:id="@+id/edt_xelog_read_string_filtrate"
                     android:layout_width="match_parent"
                     android:layout_height="36dp"
                     android:background="@null"
-                    android:paddingLeft="16dp"
                     android:hint="字符串筛选"
-                    android:textColor="@color/xelog_read_base_black_100"
-                    />
+                    android:paddingLeft="16dp"
+                    android:textColor="@color/xelog_read_base_black_100" />
+
                 <View
                     android:layout_width="match_parent"
                     android:layout_height="1px"
-                    android:background="@color/xelog_read_divider"/>
+                    android:background="@color/xelog_read_divider" />
+
                 <FrameLayout
                     android:layout_width="match_parent"
                     android:layout_height="match_parent">
+
                     <com.ldy.xelog_read.widget.xListView.XListView
                         android:id="@+id/xlv_xelog_read"
                         android:layout_width="match_parent"
@@ -66,27 +70,27 @@
                         android:dividerHeight="1px" />
 
                     <!--<com.github.clans.fab.FloatingActionMenu-->
-                        <!--android:id="@+id/menu_fab"-->
-                        <!--android:layout_width="match_parent"-->
-                        <!--android:layout_height="match_parent"-->
-                        <!--android:paddingRight="10dp"-->
-                        <!--android:paddingBottom="10dp"-->
-                        <!--android:paddingLeft="10dp"-->
-                        <!--app:menu_labels_ellipsize="end"-->
-                        <!--app:menu_labels_singleLine="true"-->
-                        <!--app:menu_backgroundColor="#ccffffff">-->
+                    <!--android:id="@+id/menu_fab"-->
+                    <!--android:layout_width="match_parent"-->
+                    <!--android:layout_height="match_parent"-->
+                    <!--android:paddingRight="10dp"-->
+                    <!--android:paddingBottom="10dp"-->
+                    <!--android:paddingLeft="10dp"-->
+                    <!--app:menu_labels_ellipsize="end"-->
+                    <!--app:menu_labels_singleLine="true"-->
+                    <!--app:menu_backgroundColor="#ccffffff">-->
 
-                        <com.github.clans.fab.FloatingActionButton
-                            android:id="@+id/fab_delete"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:src="@drawable/xelog_read_ic_delete"
-                            android:layout_gravity="end|bottom"
-                            android:layout_marginEnd="10dp"
-                            android:layout_marginRight="10dp"
-                            android:layout_marginBottom="10dp"
-                            app:fab_size="normal"
-                            app:fab_label="Delete all log" />
+                    <com.github.clans.fab.FloatingActionButton
+                        android:id="@+id/fab_delete"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="end|bottom"
+                        android:layout_marginBottom="10dp"
+                        android:layout_marginEnd="10dp"
+                        android:layout_marginRight="10dp"
+                        android:src="@drawable/xelog_read_ic_delete"
+                        app:fab_label="Delete all log"
+                        app:fab_size="normal" />
 
 
                     <!--</com.github.clans.fab.FloatingActionMenu>-->
@@ -177,16 +181,19 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="8dp" />
+
         <com.ldy.xelog_read.widget.multiSelect.MultiSelect
             android:id="@+id/multiSel_package"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="8dp" />
+
         <com.ldy.xelog_read.widget.multiSelect.MultiSelect
             android:id="@+id/multiSel_extra1"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="8dp" />
+
         <com.ldy.xelog_read.widget.multiSelect.MultiSelect
             android:id="@+id/multiSel_extra2"
             android:layout_width="match_parent"
@@ -203,24 +210,28 @@
             android:textSize="16sp" />
     </LinearLayout>
 
-    <LinearLayout
+    <FrameLayout
+        android:id="@+id/fl_xelog_read_tag_container"
         android:layout_width="300dp"
-        android:background="#ffffff"
-        android:clickable="true"
         android:layout_height="match_parent"
-        android:layout_gravity="start">
+        android:layout_gravity="start"
+        android:background="#ffffff">
+
         <ScrollView
             android:layout_width="wrap_content"
-            android:layout_height="match_parent">
+            android:layout_height="match_parent"
+            android:visibility="gone">
+
             <HorizontalScrollView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content">
+
                 <com.ldy.xelog_read.widget.tagtree.TagTree
                     android:id="@+id/tagTree_xelog_read"
                     android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"/>
+                    android:layout_height="wrap_content" />
             </HorizontalScrollView>
         </ScrollView>
 
-    </LinearLayout>
+    </FrameLayout>
 </android.support.v4.widget.DrawerLayout>

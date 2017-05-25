@@ -13,6 +13,7 @@ import org.aspectj.lang.reflect.CodeSignature;
 import org.aspectj.lang.reflect.MethodSignature;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
@@ -22,6 +23,8 @@ import java.util.List;
 
 public class DefaultHugoLogHandler extends XELogConfig implements IHugoLogHandler {
 
+    private HugoXELog hugoXELog;
+
     @Override
     public List<String> getBaseTag() {
         ArrayList<String> list = new ArrayList<>();
@@ -30,7 +33,29 @@ public class DefaultHugoLogHandler extends XELogConfig implements IHugoLogHandle
     }
 
     @Override
+    public boolean withStackTrace() {
+        return hugoXELog.withStackTrace();
+    }
+
+    @Override
+    public boolean withThread() {
+        return hugoXELog.withThread();
+    }
+
+    @Override
+    public boolean isPrintConsole() {
+        return hugoXELog.printConsole();
+    }
+
+    @Override
+    public boolean isPrintFile() {
+        return hugoXELog.printFile();
+    }
+
+    @Override
     public void enterMethod(HugoXELog hugoXELog, JoinPoint joinPoint) {
+        this.hugoXELog = hugoXELog;
+
         CodeSignature codeSignature = (CodeSignature) joinPoint.getSignature();
 
         Class<?> cls = codeSignature.getDeclaringType();
@@ -53,7 +78,7 @@ public class DefaultHugoLogHandler extends XELogConfig implements IHugoLogHandle
             builder.append(" [Thread:\"").append(Thread.currentThread().getName()).append("\"]");
         }
 
-        println(hugoXELog.value(), Collections.singletonList(asTag(cls)), builder.toString());
+        println(hugoXELog, cls, methodName, builder);
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR2) {
             final String section = builder.toString().substring(2);
@@ -63,6 +88,8 @@ public class DefaultHugoLogHandler extends XELogConfig implements IHugoLogHandle
 
     @Override
     public void exitMethod(HugoXELog hugoXELog, JoinPoint joinPoint, Object result, long lengthMillis) {
+        this.hugoXELog = hugoXELog;
+
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR2) {
             Trace.endSection();
         }
@@ -85,7 +112,17 @@ public class DefaultHugoLogHandler extends XELogConfig implements IHugoLogHandle
             builder.append(Strings.toString(result));
         }
 
-        println(hugoXELog.value(), Collections.singletonList(asTag(cls)), builder.toString());
+        println(hugoXELog, cls, methodName, builder);
+    }
+
+    private void println(HugoXELog hugoXELog, Class<?> cls, String methodName, StringBuilder builder) {
+        List<String> plusTag;
+        if (hugoXELog.tag().length == 0) {
+            plusTag = Arrays.asList(asTag(cls), methodName);
+        } else {
+            plusTag = Arrays.asList(hugoXELog.tag());
+        }
+        println(hugoXELog.value(), plusTag, builder.toString());
     }
 
     private static String asTag(Class<?> cls) {

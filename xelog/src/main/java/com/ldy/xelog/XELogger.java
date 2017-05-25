@@ -65,7 +65,7 @@ public class XELogger {
             thread = new DefaultThreadFormatter().format(Thread.currentThread());
         }
 
-        if (config.isPrintJsonFile()) {
+        if (config.isPrintFile()) {
 //            if (jsonFileLogger == null) {
 //                jsonFilePrinter = new JsonFilePrinter.Builder(XELog.getFileDir())
 //                        .logFlattener(new JsonFileFlattener(config, stackTrace, thread, getLogTag(plusTag)))
@@ -169,7 +169,7 @@ public class XELogger {
 
     private boolean isIntercept(XELogConfig config) {
         return !(config.isPrintConsole() && XELog.initParams.printConsole
-                || config.isPrintJsonFile() && XELog.initParams.printJsonFile);
+                || config.isPrintFile() && XELog.initParams.printFile);
     }
 
 }

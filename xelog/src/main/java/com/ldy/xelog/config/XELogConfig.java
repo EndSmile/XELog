@@ -101,9 +101,10 @@ public class XELogConfig {
         return true;
     }
 
-    public boolean isPrintJsonFile() {
+    public boolean isPrintFile() {
         return true;
     }
+
 
     public void println(int level, String message) {
         println(level, null, message);

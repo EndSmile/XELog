@@ -5,7 +5,6 @@ import android.os.Build;
 import android.os.Environment;
 import android.util.Log;
 
-import com.elvishew.xlog.Logger;
 import com.elvishew.xlog.XLog;
 import com.ldy.xelog.common.XELogCommon;
 import com.ldy.xelog.config.auto.IAutoLog;
@@ -97,7 +96,7 @@ public class XELog {
 
     public static class InitParams {
         boolean printConsole = true;
-        boolean printJsonFile = true;
+        boolean printFile = true;
         String dirPath;
 
         public InitParams disPrintConsole() {
@@ -105,9 +104,17 @@ public class XELog {
             return this;
         }
 
-        public InitParams disPrintJsonFile() {
-            printJsonFile = false;
+        public InitParams disPrintFile(){
+            printFile = false;
             return this;
+        }
+
+        /**
+         * Use {@link #disPrintFile()} instead
+         */
+        @Deprecated
+        public InitParams disPrintJsonFile() {
+            return disPrintFile();
         }
 
         public InitParams setDirPath(String dirPath) {

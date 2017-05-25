@@ -24,6 +24,16 @@ public @interface HugoXELog {
      */
     int value() default Log.VERBOSE;
 
+    boolean withStackTrace() default false;
+
+    boolean withThread() default true;
+
+    boolean printConsole() default true;
+
+    boolean printFile() default true;
+
+    String[] tag() default {};
+
     /**
      * @return This class must have a empty constructor
      */
