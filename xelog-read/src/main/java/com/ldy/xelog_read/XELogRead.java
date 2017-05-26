@@ -8,6 +8,6 @@ import com.ldy.xelog.common.XELogCommon;
 
 public class XELogRead {
     public static String getXelogDirPath() {
-        return XELogCommon.xelogDirPath;
+        return XELogCommon.dirPath;
     }
 }

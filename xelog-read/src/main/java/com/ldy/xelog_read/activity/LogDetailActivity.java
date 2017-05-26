@@ -3,11 +3,10 @@ package com.ldy.xelog_read.activity;
 import android.app.Activity;
 import android.content.Intent;
 import android.support.annotation.Nullable;
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.widget.TextView;
 
-import com.ldy.xelog.common.JsonFileBean;
+import com.ldy.xelog.common.bean.LogBean;
 import com.ldy.xelog_read.R;
 import com.ldy.xelog_read.widget.LogDetailItem;
 
@@ -25,10 +24,12 @@ public class LogDetailActivity extends XELogReadBaseActivity {
     private TextView tvStackTrace;
     private LogDetailItem liContent;
     private LogDetailItem liAuthor;
+    private LogDetailItem liExtra1;
+    private LogDetailItem liExtra2;
 
     @Override
     protected void attachView(@Nullable Bundle savedInstanceState) {
-        setContentView(R.layout.activity_log_detail);
+        setContentView(R.layout.xelog_read_activity_log_detail);
     }
 
     @Override
@@ -43,27 +44,31 @@ public class LogDetailActivity extends XELogReadBaseActivity {
         liRemarks = ((LogDetailItem) findViewById(R.id.logDetailItem_remarks));
         liSummary = ((LogDetailItem) findViewById(R.id.logDetailItem_summary));
         liContent = ((LogDetailItem) findViewById(R.id.logDetailItem_content));
+        liExtra1 = ((LogDetailItem) findViewById(R.id.logDetailItem_extra1));
+        liExtra2 = ((LogDetailItem) findViewById(R.id.logDetailItem_extra2));
         tvStackTrace = ((TextView) findViewById(R.id.tv_stackTrace));
 
-        JsonFileBean jsonFileBean = fromIntent();
-        liTime.setContent(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS").format(jsonFileBean.getTime()));
-        liAuthor.setContent(jsonFileBean.getAuthor());
-        liTag.setContent(jsonFileBean.getLogStr());
-        liLevel.setContent(jsonFileBean.getLevel());
-        liThread.setContent(jsonFileBean.getThread());
-        liRemarks.setContent(jsonFileBean.getRemarks());
-        liSummary.setContent(jsonFileBean.getSummary());
-        liContent.setContent(jsonFileBean.getContent());
-        tvStackTrace.setText(jsonFileBean.getStackTraceStr());
+        LogBean logBean = fromIntent();
+        liTime.setContent(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS").format(logBean.getTime()));
+        liAuthor.setContent(logBean.getAuthor());
+        liTag.setContent(logBean.getTag());
+        liLevel.setContent(logBean.getLevel());
+        liThread.setContent(logBean.getThread());
+        liRemarks.setContent(logBean.getRemarks());
+        liSummary.setContent(logBean.getSummary());
+        liContent.setContent(logBean.getContent());
+        tvStackTrace.setText(logBean.getStackTrace());
+        liExtra1.setContent(logBean.getExtra1());
+        liExtra2.setContent(logBean.getExtra2());
     }
 
-    public static void navigation(Activity activity, JsonFileBean jsonFileBean) {
+    public static void navigation(Activity activity, LogBean logBean) {
         Intent intent = new Intent(activity, LogDetailActivity.class);
-        intent.putExtra(LOG_ITEM, jsonFileBean);
+        intent.putExtra(LOG_ITEM, logBean);
         activity.startActivity(intent);
     }
 
-    private JsonFileBean fromIntent() {
+    private LogBean fromIntent() {
         return getIntent().getParcelableExtra(LOG_ITEM);
     }
 }

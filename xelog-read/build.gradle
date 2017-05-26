@@ -48,21 +48,11 @@ dependencies {
         exclude group: 'com.android.support', module: 'support-annotations'
     })
     compile 'com.android.support:appcompat-v7:25.0.0'
-    compile "com.google.code.gson:gson:2.7"
-
+    compile 'com.github.clans:fab:1.6.4'
     testCompile 'junit:junit:4.12'
     compile project(':xelog-common')
 }
-//publish {
-//    artifactId = 'xelog-read'
-//    userOrg = rootProject.userOrg
-//    groupId = rootProject.groupId
-//    uploadName = rootProject.uploadName
-//    publishVersion = rootProject.publishVersion
-//    desc = rootProject.description
-//    website = rootProject.website
-//    licences = rootProject.licences
-//}
+
 ext.projectArtifactId   = "xelog-read"
 
 apply from: rootProject.file('gradle/androidBintrayUpload.gradle')

@@ -1,13 +1,15 @@
 package com.ldy.xelogsample;
 
+import android.os.SystemClock;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.Toast;
 
-import com.ldy.xelogsample.R;
-import com.xdja.xelog.okhttp_interceptor.OkHttpLogInterceptor;
+import com.elvishew.xlog.XLog;
+import com.ldy.xelog.hugo.annotations.HugoXELog;
+import com.ldy.xelog.okhttp_interceptor.OkHttpLogInterceptor;
 
 import java.io.IOException;
 
@@ -40,17 +42,72 @@ public class MainActivity extends AppCompatActivity {
         okHttpClient.newCall(request).enqueue(new Callback() {
             @Override
             public void onFailure(Call call, IOException e) {
-                Toast.makeText(MainActivity.this, e.getMessage(), Toast.LENGTH_SHORT).show();
+                showToast(e.getMessage());
             }
 
             @Override
             public void onResponse(Call call, Response response) throws IOException {
-                Toast.makeText(MainActivity.this, response.body().toString(), Toast.LENGTH_SHORT).show();
+                showToast(response.body().toString());
             }
         });
     }
 
+    private void showToast(final String toast) {
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                Toast.makeText(MainActivity.this, toast, Toast.LENGTH_SHORT).show();
+            }
+        });
+
+    }
+
     public void errorLog(View view) {
         throw new NullPointerException("实验");
+    }
+
+    public void hugoLog(View view){
+        printArgs("Hugo", "XELog", "ldy");
+
+        Greeter greeter = new Greeter("Jake");
+        Log.d("Greeting", greeter.sayHello());
+
+        startSleepyThread();
+    }
+
+    @HugoXELog
+    private void printArgs(String... args) {
+        for (String arg : args) {
+            Log.i("Args", arg);
+        }
+    }
+
+    @HugoXELog(Log.DEBUG)
+    static class Greeter {
+        private final String name;
+
+        Greeter(String name) {
+            this.name = name;
+        }
+
+        private String sayHello() {
+            return "Hello, " + name;
+        }
+    }
+
+
+    private void startSleepyThread() {
+        new Thread(new Runnable() {
+            private static final long SOME_POINTLESS_AMOUNT_OF_TIME = 50;
+
+            @Override public void run() {
+                sleepyMethod(SOME_POINTLESS_AMOUNT_OF_TIME);
+            }
+
+            @HugoXELog
+            private void sleepyMethod(long milliseconds) {
+                SystemClock.sleep(milliseconds);
+            }
+        }, "Im a lazy thr.. bah! whatever!").start();
     }
 }

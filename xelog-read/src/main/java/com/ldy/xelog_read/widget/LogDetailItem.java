@@ -2,10 +2,10 @@ package com.ldy.xelog_read.widget;
 
 import android.content.Context;
 import android.content.res.TypedArray;
+import android.text.TextUtils;
 import android.util.AttributeSet;
 import android.view.LayoutInflater;
 import android.widget.FrameLayout;
-import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.ldy.xelog_read.R;
@@ -41,7 +41,7 @@ public class LogDetailItem extends FrameLayout {
             }
             a.recycle();
         }
-        LayoutInflater.from(context).inflate(R.layout.item_log_detail,this);
+        LayoutInflater.from(context).inflate(R.layout.xelog_read_item_log_detail,this);
 
         tvTitele = ((TextView) findViewById(R.id.tv_log_detail_title));
         tvContent = ((TextView) findViewById(R.id.tv_log_detail_content));
@@ -51,6 +51,10 @@ public class LogDetailItem extends FrameLayout {
     }
 
     public void setContent(String content) {
+        if (TextUtils.isEmpty(content)){
+            setVisibility(GONE);
+            return;
+        }
         tvContent.setText(content);
     }
 }

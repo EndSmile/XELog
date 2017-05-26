@@ -1,19 +1,17 @@
 package com.ldy.xelog_read.activity;
 
 import android.content.Context;
-import android.graphics.Color;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.TextView;
 
-import com.ldy.xelog.common.JsonFileBean;
+import com.ldy.xelog.common.bean.LogBean;
 import com.ldy.xelog_read.R;
 import com.ldy.xelog_read.widget.TimeShowView;
 
 import java.util.List;
-import java.util.Objects;
 
 /**
  * Created by ldy on 2017/3/7.
@@ -21,14 +19,14 @@ import java.util.Objects;
 class LogListAdapter extends BaseAdapter {
 
     private Context context;
-    private List<JsonFileBean> list;
+    private List<LogBean> list;
 
-    public LogListAdapter(Context context, List<JsonFileBean> list) {
+    public LogListAdapter(Context context, List<LogBean> list) {
         this.context = context;
         this.list = list;
     }
 
-    public void setData(List<JsonFileBean> list) {
+    public void setData(List<LogBean> list) {
         this.list = list;
         notifyDataSetChanged();
     }
@@ -52,17 +50,17 @@ class LogListAdapter extends BaseAdapter {
     public View getView(int position, View convertView, ViewGroup parent) {
         ViewHolder viewHolder;
         if (convertView == null) {
-            convertView = LayoutInflater.from(context).inflate(R.layout.item_log, null);
+            convertView = LayoutInflater.from(context).inflate(R.layout.xelog_read_item_log, null);
             viewHolder = new ViewHolder(convertView);
             convertView.setTag(viewHolder);
         } else {
             viewHolder = (ViewHolder) convertView.getTag();
         }
 
-        JsonFileBean jsonFileBean = getJsonFileBean(position);
-        viewHolder.tvTime.setDate((jsonFileBean.getTime()));
-        viewHolder.tvSummary.setText(jsonFileBean.getSummary());
-        if (jsonFileBean.getLevel().equals("ERROR")){
+        LogBean logBean = getJsonFileBean(position);
+        viewHolder.tvTime.setDate((logBean.getTime()));
+        viewHolder.tvSummary.setText(logBean.getSummary());
+        if (logBean.getLevel().equals("ERROR")){
             viewHolder.tvTime.setTextColor(context.getResources().getColor(R.color.xelog_read_error));
             viewHolder.tvSummary.setTextColor(context.getResources().getColor(R.color.xelog_read_error));
         }else {
@@ -73,12 +71,17 @@ class LogListAdapter extends BaseAdapter {
         return convertView;
     }
 
-    public JsonFileBean getJsonFileBean(int position) {
+    public LogBean getJsonFileBean(int position) {
         return list.get(getRealPosition(position));
     }
 
     public int getRealPosition(int position){
-        return getCount() - 1 - position;
+//        return getCount() - 1 - position;
+        return position;
+    }
+
+    public List<LogBean> getList() {
+        return list;
     }
 
     static class ViewHolder {
