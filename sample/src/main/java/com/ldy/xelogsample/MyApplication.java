@@ -5,7 +5,7 @@ import android.app.Application;
 import com.ldy.xelog.XELog;
 import com.ldy.xelog.config.auto.ActivityLog;
 import com.ldy.xelog.config.auto.CrashCatchLog;
-import com.ldy.xelog_read.XELogRead;
+
 
 /**
  * Created by ldy on 2017/3/8.

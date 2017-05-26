@@ -2,6 +2,9 @@ package com.ldy.xelog.config.auto;
 
 import com.elvishew.xlog.LogConfiguration;
 
+import java.io.PrintWriter;
+import java.io.StringWriter;
+import java.io.Writer;
 import java.util.List;
 
 /**
@@ -87,7 +90,19 @@ public class CrashCatchLog extends AbstractAutoLog implements Thread.UncaughtExc
      */
     @Override
     public void uncaughtException(Thread t, Throwable e) {
-        e(getXLogConfiguration().throwableFormatter.format(e));
+        String result = null;
+        if (e != null) {
+            Writer writer = new StringWriter();
+            PrintWriter pw = new PrintWriter(writer);
+            Throwable cause = e.getCause();
+            while (cause != null) {
+                cause.printStackTrace(pw);
+                cause = cause.getCause();
+            }
+            pw.close();
+            result = writer.toString();
+        }
+        e(result);
         if (handler == null) {
             if (defaultHandler != null)
                 defaultHandler.uncaughtException(t, e);
