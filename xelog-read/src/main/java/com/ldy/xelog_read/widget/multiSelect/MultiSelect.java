@@ -44,6 +44,9 @@ public class MultiSelect extends LinearLayout {
 
     public List<String> getSelect() {
         ArrayList<String> selects = new ArrayList<>();
+        if (contentList == null) {
+            return selects;
+        }
         for (CheckBox checkBox : contentList) {
             if (checkBox.isChecked()) {
                 selects.add(checkBox.getText().toString());

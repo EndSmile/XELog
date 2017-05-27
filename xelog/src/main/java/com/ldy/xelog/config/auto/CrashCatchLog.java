@@ -5,7 +5,10 @@ import com.elvishew.xlog.LogConfiguration;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.io.Writer;
+import java.util.LinkedList;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * Created by ldy on 2017/3/14.
@@ -28,18 +31,26 @@ public class CrashCatchLog extends AbstractAutoLog implements Thread.UncaughtExc
 
     @Override
     public String getSummary(String msg) {
-        try {
-            String[] strings = msg.split(":");
-            String[] fullClass = strings[0].split("\\.");
-            return fullClass[fullClass.length - 1];
-        }catch (Exception ignored){
+        Pattern pattern = Pattern.compile("[^\\t].*Exception");
+        Matcher matcher = pattern.matcher(msg);
+        LinkedList<String> list = new LinkedList<>();
+        while (matcher.find()) {
+            list.addFirst(matcher.group());
+        }
+        System.out.println(list.toString());
+        for (String s : list) {
+            try {
+                String[] split = s.split("\\.");
+                return split[split.length - 1];
+            } catch (Exception ignore) {
+            }
         }
         return super.getSummary(msg);
     }
 
     @Override
     public LogConfiguration getXLogConfiguration() {
-        if (logConfiguration!=null){
+        if (logConfiguration != null) {
             logConfiguration = new LogConfiguration.Builder().build();
         }
         return logConfiguration;
