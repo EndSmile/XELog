@@ -11,25 +11,24 @@
 ### 使用
 ```
 //日志打印库
-compile 'com.ldy:xelog:0.3.1'
+compile 'com.ldy:xelog:0.5.2'
 //日志读取库
-compile 'com.ldy:xelog-read:0.3.1'
+compile 'com.ldy:xelog-read:0.5.2'
+//使用aop的形式将{@link com.ldy.xelog.hugo.annotations.HugoXELog}注解加在类，方法上可实现日志打印，参考hugo
+compile 'com.ldy:xelog-hugo:0.5.2'
 //okhttp日志拦截器，使用xelog实现
-compile 'com.ldy:xelog-okhttp-interceptor:0.3.1'
+compile 'com.ldy:xelog-okhttp-interceptor:0.5.2'
 ```
 
 ### todoList
 
- 1. tag树宽度计算修复
- 2. tag树折叠
- 3. 根据不同level改变颜色（现已完成error颜色改变）
- 4. 根据调用栈信息解析出调用者的模块信息
- 5. 程序异常时打印更多的信息（包括修复现有异常捕捉bug）
- 6. 时间筛选（时间筛选方式更新为选定开始和结束时间，而不是跳转到某个时间）
- 7. 日志删除，提供多选，全选的方式删除日志
- 8. 右下角增加辅助按钮
- 9. 集成Hugo 
- 10. ...
+ 1. 根据不同level改变颜色（现已完成error颜色改变）
+ 2. 根据调用栈信息解析出调用者的模块信息
+ 3. 程序异常时打印更多的信息（包括修复现有异常捕捉bug）
+ 4. 时间筛选（时间筛选方式更新为选定开始和结束时间，而不是跳转到某个时间）
+ 5. 日志删除，提供多选，全选的方式删除日志
+ 6. 右下角增加辅助按钮
+ 7. ...
 
  
 
