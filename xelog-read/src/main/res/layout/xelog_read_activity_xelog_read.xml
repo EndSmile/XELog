@@ -30,7 +30,8 @@
                 android:paddingRight="8dp"
                 android:text="time"
                 android:textColor="@color/xelog_read_base_white_100"
-                android:textSize="16dp" />
+                android:textSize="16dp"
+                android:visibility="gone" />
         </FrameLayout>
 
         <FrameLayout
