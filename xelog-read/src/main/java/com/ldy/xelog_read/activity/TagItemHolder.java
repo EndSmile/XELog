@@ -19,7 +19,6 @@ public class TagItemHolder extends BaseNodeViewHolder<String> {
 
     private ImageView ivArrow;
     private CheckBox chkTag;
-    private static TreeNode nodeSelect;
     private final TagChangeListener tagChangeListener;
 
     public TagItemHolder(Context context, TagChangeListener tagChangeListener) {
@@ -77,7 +76,7 @@ public class TagItemHolder extends BaseNodeViewHolder<String> {
                 ivArrow.setImageResource(R.drawable.xelog_read_ic_arrow_right);
             }
         }else {
-            chkTag.setChecked(!chkTag.isChecked());
+            chkTag.performClick();
         }
     }
     @Override
