@@ -34,9 +34,10 @@ dependencies {
     })
     compile 'com.squareup.okhttp3:okhttp:3.6.0'
     testCompile 'junit:junit:4.12'
-//    compile 'com.ldy:xelog:0.3.1'
-//    compile 'com.ldy:xelog-read:0.3.1'
-//    compile 'com.ldy:xelog-okhttp-interceptor:0.3.1'
+//    compile 'com.ldy:xelog:0.5.3'
+//    compile 'com.ldy:xelog-read:0.5.3'
+//    compile 'com.ldy:xelog-okhttp-interceptor:0.5.3'
+//    compile 'com.ldy:xelog-hugo:0.5.3'
     compile project(':xelog')
     compile project(':xelog-read')
     compile project(':xelog-okhttp-interceptor')
