@@ -8,6 +8,7 @@
         <activity
             android:name=".activity.XELogReadActivity"
             android:label="xelog-read"
+            android:icon="@drawable/xelog_read_launcher"
             android:taskAffinity="com.ldy.xelog_read"
             android:theme="@style/xelog_read_Theme">
             <intent-filter>
