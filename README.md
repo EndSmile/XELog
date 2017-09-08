@@ -13,13 +13,13 @@
 ### 使用
 ```
 //日志打印库
-compile 'com.ldy:xelog:0.5.3'
+compile 'com.ldy:xelog:0.5.8'
 //日志读取库
-compile 'com.ldy:xelog-read:0.5.3'
+compile 'com.ldy:xelog-read:0.5.8'
 //使用aop的形式将{@link com.ldy.xelog.hugo.annotations.HugoXELog}注解加在类，方法上可实现日志打印，参考hugo
-compile 'com.ldy:xelog-hugo:0.5.3'
+compile 'com.ldy:xelog-hugo:0.5.8'
 //okhttp日志拦截器，使用xelog实现
-compile 'com.ldy:xelog-okhttp-interceptor:0.5.3'
+compile 'com.ldy:xelog-okhttp-interceptor:0.5.8'
 ```
 
 ### todoList
