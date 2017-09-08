@@ -30,6 +30,11 @@ public class CrashCatchLog extends AbstractAutoLog implements Thread.UncaughtExc
     }
 
     @Override
+    public boolean isPrintConsole() {
+        return true;
+    }
+
+    @Override
     public String getSummary(String msg) {
         Pattern pattern = Pattern.compile("[^\\t].*Exception");
         Matcher matcher = pattern.matcher(msg);
